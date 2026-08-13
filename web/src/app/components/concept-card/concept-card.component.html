@@ -1,4 +1,4 @@
-<div class="concept-card">
+<div class="concept-card" [class.has-selection]="activeWordIndex !== null">
   <div class="concept-card-inner">
     
     <!-- 🔵 1. SECTION FACILE (1 à 3) -->
@@ -18,11 +18,17 @@
            [class.active-selected]="activeWordIndex === (i + 1)"
            (click)="onItemClick(i + 1)">
         <span class="item-num">{{ i + 1 }}</span>
-        <span class="item-text" [title]="item.text + (item.theme ? ' • ' + item.theme : '')">
-          {{ item.text }}
-          <span *ngIf="item.year" class="item-year">({{ item.year }})</span>
-        </span>
-        <span *ngIf="showDetails && item.theme" class="item-theme-tag">{{ item.theme }}</span>
+        <div class="item-content">
+          <div class="item-title" [class.long-title]="item.text.length > 24">
+            {{ item.text }}
+            <span *ngIf="item.year" class="item-year">({{ item.year }})</span>
+          </div>
+          <div *ngIf="item.theme" class="item-category-wrapper" [class.is-visible]="showDetails">
+            <div class="item-category-inner">
+              <span class="item-category">{{ item.theme }}</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -43,11 +49,17 @@
            [class.active-selected]="activeWordIndex === (i + 4)"
            (click)="onItemClick(i + 4)">
         <span class="item-num">{{ i + 4 }}</span>
-        <span class="item-text" [title]="item.text + (item.theme ? ' • ' + item.theme : '')">
-          {{ item.text }}
-          <span *ngIf="item.year" class="item-year">({{ item.year }})</span>
-        </span>
-        <span *ngIf="showDetails && item.theme" class="item-theme-tag">{{ item.theme }}</span>
+        <div class="item-content">
+          <div class="item-title" [class.long-title]="item.text.length > 24">
+            {{ item.text }}
+            <span *ngIf="item.year" class="item-year">({{ item.year }})</span>
+          </div>
+          <div *ngIf="item.theme" class="item-category-wrapper" [class.is-visible]="showDetails">
+            <div class="item-category-inner">
+              <span class="item-category">{{ item.theme }}</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -68,11 +80,17 @@
            [class.active-selected]="activeWordIndex === (i + 7)"
            (click)="onItemClick(i + 7)">
         <span class="item-num">{{ i + 7 }}</span>
-        <span class="item-text" [title]="item.text + (item.theme ? ' • ' + item.theme : '')">
-          {{ item.text }}
-          <span *ngIf="item.year" class="item-year">({{ item.year }})</span>
-        </span>
-        <span *ngIf="showDetails && item.theme" class="item-theme-tag">{{ item.theme }}</span>
+        <div class="item-content">
+          <div class="item-title" [class.long-title]="item.text.length > 24">
+            {{ item.text }}
+            <span *ngIf="item.year" class="item-year">({{ item.year }})</span>
+          </div>
+          <div *ngIf="item.theme" class="item-category-wrapper" [class.is-visible]="showDetails">
+            <div class="item-category-inner">
+              <span class="item-category">{{ item.theme }}</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 

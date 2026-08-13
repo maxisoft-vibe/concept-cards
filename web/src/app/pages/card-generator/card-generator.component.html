@@ -22,8 +22,8 @@
       <div class="history-pill" *ngIf="history.historyTotal() > 1">
         <span>Historique : <strong>{{ history.historyIndex() }}</strong> / {{ history.historyTotal() }}</span>
       </div>
-      <div class="card-id-pill" *ngIf="history.currentCard()" [title]="'Seed: ' + history.currentCard()?.seed">
-        <span>#{{ history.currentCard()?.id }}</span>
+      <div class="card-id-pill" *ngIf="history.currentCard()" (click)="copyShareLink()" title="Cliquer pour copier le lien de cette carte">
+        <span>🔗 Graine : <strong>{{ history.currentCard()?.id }}</strong></span>
       </div>
     </div>
 
@@ -32,15 +32,18 @@
       <span>Mot choisi : <strong>#{{ selectedWordIndex() }}</strong> (cliquez à nouveau pour désélectionner)</span>
     </div>
 
-    <!-- The Concept Card -->
-    <div class="card-wrapper">
-      <app-concept-card 
-        *ngIf="history.currentCard()"
-        [card]="history.currentCard()!"
-        [showDetails]="showThemes()"
-        [activeWordIndex]="selectedWordIndex()"
-        (selectWord)="onSelectWord($event)">
-      </app-concept-card>
+    <!-- The Concept Card with Smooth Enter Animation on Card Change -->
+    <div class="card-viewport">
+      <ng-container *ngFor="let card of (history.currentCard() ? [history.currentCard()!] : []); trackBy: trackByCardId">
+        <div class="card-wrapper" [ngClass]="animClass()">
+          <app-concept-card 
+            [card]="card"
+            [showDetails]="showThemes()"
+            [activeWordIndex]="selectedWordIndex()"
+            (selectWord)="onSelectWord($event)">
+          </app-concept-card>
+        </div>
+      </ng-container>
     </div>
 
     <!-- Control Actions Toolbar -->
@@ -50,16 +53,16 @@
         class="btn btn-nav" 
         [disabled]="!history.canGoBack()" 
         (click)="onPrevious()"
-        title="Carte précédente (Flèche Gauche)">
+        title="Carte précédente (Flèche Gauche / Glisser Droite)">
         <span class="btn-icon">⬅</span>
         <span class="btn-text">Précédente</span>
       </button>
 
       <!-- Main Generate Button -->
       <button 
-        class="btn btn-primary btn-pulse" 
+        class="btn btn-primary" 
         (click)="onGenerateNew()"
-        title="Générer une nouvelle carte (Espace)">
+        title="Générer une nouvelle carte (Espace / Glisser Gauche)">
         <span class="btn-icon">🎲</span>
         <span class="btn-text">Nouvelle Carte</span>
       </button>
@@ -78,12 +81,17 @@
     <div class="secondary-toolbar">
       <button class="btn btn-ghost" (click)="copyShareLink()" title="Partager cette carte">
         <span class="btn-icon">📋</span>
-        <span>Copier le lien</span>
+        <span>Lien</span>
+      </button>
+
+      <button class="btn btn-ghost" (click)="downloadSvg()" title="Télécharger la carte au format vectoriel SVG (imprimable)">
+        <span class="btn-icon">📥</span>
+        <span>SVG</span>
       </button>
 
       <button class="btn btn-ghost" [class.active]="showThemes()" (click)="toggleThemes()" title="Afficher/Masquer les thèmes d'origine">
-        <span class="btn-icon">ℹ️</span>
-        <span>{{ showThemes() ? 'Masquer détails' : 'Détails thèmes' }}</span>
+        <span class="btn-icon">💡</span>
+        <span>{{ showThemes() ? 'Masquer indices' : 'Afficher indices' }}</span>
       </button>
     </div>
 

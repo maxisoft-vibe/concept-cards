@@ -1,7 +1,8 @@
-import { Component, inject, signal, HostListener } from '@angular/core';
+import { Component, inject, signal, HostListener, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CardHistoryService } from '../../services/card-history.service';
 import { WordStorageService } from '../../services/word-storage.service';
+import { CardSvgExporterService } from '../../services/card-svg-exporter.service';
 import { ConceptCardComponent } from '../../components/concept-card/concept-card.component';
 
 @Component({
@@ -14,19 +15,33 @@ import { ConceptCardComponent } from '../../components/concept-card/concept-card
 export class CardGeneratorComponent {
   readonly history = inject(CardHistoryService);
   readonly storage = inject(WordStorageService);
+  readonly svgExporter = inject(CardSvgExporterService);
 
   showThemes = signal<boolean>(false);
   selectedWordIndex = signal<number | null>(null);
   toastMessage = signal<string | null>(null);
   private toastTimeout: any;
 
+  // Animation state
+  animClass = signal<'anim-slide-left' | 'anim-slide-right' | 'anim-deal'>('anim-deal');
+  animKey = signal<number>(0);
+
   // Touch gesture handling
   private touchStartX = 0;
   private touchStartY = 0;
 
+  constructor() {
+    // Whenever the card ID changes, trigger the deal/slide animation
+    effect(() => {
+      const card = this.history.currentCard();
+      if (card) {
+        this.triggerCardAnimation();
+      }
+    });
+  }
+
   @HostListener('window:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent): void {
-    // Space or ArrowRight -> New / Next card
     if (event.code === 'Space' || event.code === 'ArrowRight') {
       if ((event.target as HTMLElement)?.tagName !== 'INPUT') {
         event.preventDefault();
@@ -54,8 +69,7 @@ export class CardGeneratorComponent {
       const deltaX = event.changedTouches[0].clientX - this.touchStartX;
       const deltaY = event.changedTouches[0].clientY - this.touchStartY;
 
-      // Check horizontal swipe (min 50px delta and not a vertical scroll)
-      if (Math.abs(deltaX) > 60 && Math.abs(deltaY) < 80) {
+      if (Math.abs(deltaX) > 50 && Math.abs(deltaY) < 90) {
         if (deltaX < 0) {
           // Swipe Left -> Next / New
           this.onNextOrNew();
@@ -68,6 +82,7 @@ export class CardGeneratorComponent {
   }
 
   onGenerateNew(): void {
+    this.animClass.set('anim-slide-left');
     this.selectedWordIndex.set(null);
     this.history.generateNewCard();
     this.showToast('Nouvelle carte générée !');
@@ -75,6 +90,7 @@ export class CardGeneratorComponent {
 
   onPrevious(): void {
     if (this.history.canGoBack()) {
+      this.animClass.set('anim-slide-right');
       this.selectedWordIndex.set(null);
       this.history.goToPrevious();
       this.showToast('Carte précédente');
@@ -82,6 +98,7 @@ export class CardGeneratorComponent {
   }
 
   onNextOrNew(): void {
+    this.animClass.set('anim-slide-left');
     this.selectedWordIndex.set(null);
     if (this.history.canGoForward()) {
       this.history.goToNext();
@@ -90,6 +107,14 @@ export class CardGeneratorComponent {
       this.history.generateNewCard();
       this.showToast('Nouvelle carte générée !');
     }
+  }
+
+  trackByCardId(index: number, card: any): string {
+    return card?.id ?? String(index);
+  }
+
+  private triggerCardAnimation(): void {
+    this.animKey.update(k => k + 1);
   }
 
   toggleThemes(): void {
@@ -104,6 +129,13 @@ export class CardGeneratorComponent {
     }
   }
 
+  downloadSvg(): void {
+    const card = this.history.currentCard();
+    if (!card) return;
+    this.svgExporter.downloadCardAsSvg(card);
+    this.showToast('Téléchargement du SVG lancé !');
+  }
+
   async copyShareLink(): Promise<void> {
     const card = this.history.currentCard();
     if (!card) return;
@@ -113,7 +145,6 @@ export class CardGeneratorComponent {
       if (navigator.clipboard) {
         await navigator.clipboard.writeText(url);
       } else {
-        // Fallback for older web views
         const textArea = document.createElement('textarea');
         textArea.value = url;
         document.body.appendChild(textArea);
@@ -121,7 +152,7 @@ export class CardGeneratorComponent {
         document.execCommand('copy');
         document.body.removeChild(textArea);
       }
-      this.showToast('Lien de la carte copié dans le presse-papier !');
+      this.showToast('Lien de la carte copié !');
     } catch {
       this.showToast('Lien : ' + url);
     }
@@ -132,6 +163,6 @@ export class CardGeneratorComponent {
     this.toastMessage.set(msg);
     this.toastTimeout = setTimeout(() => {
       this.toastMessage.set(null);
-    }, 2200);
+    }, 2000);
   }
 }
