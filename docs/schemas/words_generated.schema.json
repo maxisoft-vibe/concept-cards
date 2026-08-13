@@ -1,0 +1,167 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ConceptWordsGenerated",
+  "type": "object",
+  "description": "Schema for the generated words dataset (res/words_generated.json & res/cache_words_gen.json)",
+  "required": [
+    "queries",
+    "words"
+  ],
+  "properties": {
+    "queries": {
+      "type": "array",
+      "description": "List of executed prompt queries and their raw LLM results",
+      "items": {
+        "type": "object",
+        "required": [
+          "index",
+          "prompt_line",
+          "status"
+        ],
+        "properties": {
+          "index": {
+            "type": "integer",
+            "description": "0-based index of the query in names_gen.txt"
+          },
+          "prompt_line": {
+            "type": "string",
+            "description": "The exact query prompt line text"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "success",
+              "error"
+            ],
+            "description": "Execution status of the query"
+          },
+          "result": {
+            "type": "object",
+            "description": "Structured JSON parsed from the LLM response (when status is success)",
+            "properties": {
+              "top": {
+                "type": "object",
+                "required": [
+                  "query",
+                  "subject",
+                  "n",
+                  "values"
+                ],
+                "properties": {
+                  "query": {
+                    "type": "string"
+                  },
+                  "subject": {
+                    "type": "string"
+                  },
+                  "n": {
+                    "type": "integer"
+                  },
+                  "values": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "n"
+                      ],
+                      "properties": {
+                        "n": {
+                          "type": "string",
+                          "description": "Word or expression name"
+                        },
+                        "y": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "description": "Year associated if applicable (e.g. 1997, -700)"
+                        },
+                        "c": {
+                          "type": "number",
+                          "minimum": 0.0,
+                          "maximum": 1.0,
+                          "description": "Complexity evaluation score"
+                        },
+                        "cc": {
+                          "type": "number",
+                          "minimum": 0.0,
+                          "maximum": 1.0,
+                          "description": "Commonness evaluation score"
+                        },
+                        "d": {
+                          "type": "integer",
+                          "enum": [
+                            0,
+                            1,
+                            2
+                          ],
+                          "description": "Difficulty rating (0: Easy, 1: Medium, 2: Hard)"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "raw_response": {
+            "type": "string",
+            "description": "The raw string payload extracted from LiteLLM response"
+          },
+          "error": {
+            "type": "string",
+            "description": "Error message if status is error"
+          }
+        }
+      }
+    },
+    "words": {
+      "type": "array",
+      "description": "Deduplicated collection of unique terms across all queries",
+      "items": {
+        "type": "object",
+        "required": [
+          "word",
+          "query_indices"
+        ],
+        "properties": {
+          "word": {
+            "type": "string",
+            "description": "Canonical name of the French word or expression"
+          },
+          "query_indices": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "description": "Indices of all queries that produced this word"
+          },
+          "y": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "Year associated if applicable"
+          },
+          "c": {
+            "type": "number",
+            "description": "Complexity score [0.0 to 1.0]"
+          },
+          "cc": {
+            "type": "number",
+            "description": "Commonness score [0.0 to 1.0]"
+          },
+          "d": {
+            "type": "integer",
+            "enum": [
+              0,
+              1,
+              2
+            ],
+            "description": "Difficulty rating (0: Easy, 1: Medium, 2: Hard)"
+          }
+        }
+      }
+    }
+  }
+}

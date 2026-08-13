@@ -1,0 +1,73 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "LLMConceptResponse",
+  "type": "object",
+  "description": "Schema for DeepSeek JSON response (ConceptResponse Pydantic model)",
+  "required": [
+    "top"
+  ],
+  "properties": {
+    "top": {
+      "type": "object",
+      "required": [
+        "query",
+        "subject",
+        "n",
+        "values"
+      ],
+      "properties": {
+        "query": {
+          "type": "string",
+          "description": "Full topic or query line"
+        },
+        "subject": {
+          "type": "string",
+          "description": "Short topic summary"
+        },
+        "n": {
+          "type": "integer",
+          "description": "Number of entries in values array"
+        },
+        "values": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "n"
+            ],
+            "properties": {
+              "n": {
+                "type": "string",
+                "description": "French word or expression name"
+              },
+              "y": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "description": "Year associated if applicable"
+              },
+              "c": {
+                "type": "number",
+                "description": "Complexity score [0.0 to 1.0]"
+              },
+              "cc": {
+                "type": "number",
+                "description": "Commonness score [0.0 to 1.0]"
+              },
+              "d": {
+                "type": "integer",
+                "enum": [
+                  0,
+                  1,
+                  2
+                ],
+                "description": "Difficulty rating (0: Easy, 1: Medium, 2: Hard)"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

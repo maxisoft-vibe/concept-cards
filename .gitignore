@@ -1,0 +1,76 @@
+# --- Environment Variables & Secrets ---
+.env
+.env.*
+*.env
+*.env.local
+secrets/
+secrets.json
+
+# --- Python & Bytecode ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+.eggs/
+
+# --- Virtual Environments & Package Managers ---
+.venv/
+venv/
+ENV/
+env/
+.uv/
+
+# --- IDEs & Editors ---
+# PyCharm / JetBrains (may contain environment variables, API keys, or machine-specific paths)
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# VS Code
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# --- Testing & Coverage ---
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# --- Temporary & Backup Files ---
+*.bak
+*.tmp
+*.swp
+*~
+res/cache_words_gen.json
+res/test_*.json
+scratch/
+
+# --- OS Specific Files ---
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Linux
+*~
+.directory
