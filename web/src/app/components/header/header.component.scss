@@ -123,6 +123,12 @@
   &.loading {
     color: #94a3b8;
   }
+
+  &.offline {
+    background: rgba(245, 158, 11, 0.15);
+    border-color: rgba(245, 158, 11, 0.4);
+    color: #b45309;
+  }
 }
 
 .status-dot {
@@ -130,6 +136,10 @@
   height: 7px;
   background: #10b981;
   border-radius: 50%;
+
+  &.offline-dot {
+    background: #f59e0b;
+  }
 }
 
 @media (max-width: 640px) {

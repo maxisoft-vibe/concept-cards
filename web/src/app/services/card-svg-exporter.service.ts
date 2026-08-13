@@ -141,19 +141,19 @@ export class CardSvgExporterService {
        ======================================================== -->
   <g id="section-hard">
     <!-- Box -->
-    <rect x="42" y="416" width="396" height="154" rx="18" ry="18" fill="#cbd5e1" stroke="#334155" stroke-width="2.5"/>
+    <rect x="42" y="416" width="396" height="154" rx="18" ry="18" fill="#f1f5f9" stroke="#475569" stroke-width="2.5"/>
     
     <!-- Smiley Badge -->
     <circle cx="410" cy="416" r="16" fill="#ffffff"/>
     <g transform="translate(396, 402)">
-      <circle cx="14" cy="14" r="13" fill="#334155" fill-opacity="0.15" stroke="#334155" stroke-width="2"/>
-      <circle cx="10" cy="11" r="1.5" fill="#334155"/>
-      <circle cx="18" cy="11" r="1.5" fill="#334155"/>
-      <path d="M9 19s2-3 5-3 5 3 5 3" fill="none" stroke="#334155" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="14" cy="14" r="13" fill="#475569" fill-opacity="0.15" stroke="#475569" stroke-width="2"/>
+      <circle cx="10" cy="11" r="1.5" fill="#475569"/>
+      <circle cx="18" cy="11" r="1.5" fill="#475569"/>
+      <path d="M9 19s2-3 5-3 5 3 5 3" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round"/>
     </g>
 
     <!-- Rows 7, 8, 9 -->
-    ${renderRows(hardItems, '#334155', '#cbd5e1', '#1e293b', '#64748b', 426)}
+    ${renderRows(hardItems, '#475569', '#ffffff', '#1e293b', '#cbd5e1', 426)}
   </g>
 
   <!-- Card Watermark / Footer ID -->

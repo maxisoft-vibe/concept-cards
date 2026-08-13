@@ -25,7 +25,11 @@
 
     <!-- Stats & Offline Badge -->
     <div class="header-status">
-      <span *ngIf="storage.isLoaded()" class="status-pill" [title]="'Source locale : ' + storage.loadSource()">
+      <span *ngIf="isOffline()" class="status-pill offline" title="Mode hors-ligne actif (PWA Cache)">
+        <span class="status-dot offline-dot"></span>
+        Hors-ligne
+      </span>
+      <span *ngIf="!isOffline() && storage.isLoaded()" class="status-pill" [title]="'Source locale : ' + storage.loadSource()">
         <span class="status-dot"></span>
         {{ storage.totalWordsCount() | number }} mots
       </span>

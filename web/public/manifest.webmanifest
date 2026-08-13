@@ -1,0 +1,18 @@
+{
+  "name": "Concept - Générateur de Cartes",
+  "short_name": "Concept",
+  "description": "Générateur infini de cartes et dictionnaire pour le jeu de société Concept (8 695 mots, 100% hors-ligne).",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0284c7",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ]
+}

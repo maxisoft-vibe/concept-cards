@@ -129,6 +129,45 @@ export class CardGeneratorComponent {
     }
   }
 
+  getSelectedWordItem(): { text: string; theme?: string; year?: number } | null {
+    const card = this.history.currentCard();
+    const idx = this.selectedWordIndex();
+    if (!card || idx === null) return null;
+
+    if (idx >= 1 && idx <= 3) {
+      return card.easy[idx - 1] ?? null;
+    } else if (idx >= 4 && idx <= 6) {
+      return card.medium[idx - 4] ?? null;
+    } else if (idx >= 7 && idx <= 9) {
+      return card.hard[idx - 7] ?? null;
+    }
+    return null;
+  }
+
+  getDuckDuckGoSearchUrl(): string {
+    const item = this.getSelectedWordItem();
+    if (!item) return '#';
+
+    // Search for word + year if present
+    const query = item.year ? `${item.text} ${item.year}` : item.text;
+    
+    // Privacy-preserving parameters:
+    // kl=fr-fr : French region
+    // ia=web : Instant Answer / DuckAssist AI activated
+    // k1=-1 : Ads disabled / non-tracking param
+    // kd=-1 : Disable search suggest telemetry
+    // kn=1 : Open in new tab
+    const params = new URLSearchParams({
+      q: query,
+      kl: 'fr-fr',
+      ia: 'web',
+      k1: '-1',
+      kd: '-1'
+    });
+
+    return `https://duckduckgo.com/?${params.toString()}`;
+  }
+
   downloadSvg(): void {
     const card = this.history.currentCard();
     if (!card) return;
