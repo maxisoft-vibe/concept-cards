@@ -17,13 +17,13 @@
   <!-- Main Generator View -->
   <div *ngIf="storage.isLoaded()" class="card-display-area">
     
-    <!-- Top Meta Info & History Counter -->
+    <!-- Top Meta Info & History Counter (Spaced evenly across edges) -->
     <div class="card-meta-bar">
-      <div class="history-pill" *ngIf="history.historyTotal() > 1">
-        <span>Historique : <strong>{{ history.historyIndex() }}</strong> / {{ history.historyTotal() }}</span>
-      </div>
       <div class="card-id-pill" *ngIf="history.currentCard()" (click)="copyShareLink()" title="Cliquer pour copier le lien de cette carte">
         <span>🔗 Graine : <strong>{{ history.currentCard()?.id }}</strong></span>
+      </div>
+      <div class="history-pill" *ngIf="history.historyTotal() > 1">
+        <span>Historique : <strong>{{ history.historyIndex() }}</strong> / {{ history.historyTotal() }}</span>
       </div>
     </div>
 
@@ -117,9 +117,9 @@
 
     <!-- Keyboard & Mobile Help -->
     <div class="hints-box">
-      <span class="hint-item">⌨️ <kbd>Espace</kbd> ou <kbd>→</kbd> : Nouvelle carte</span>
-      <span class="hint-item">📱 Glisser (Swipe) gauche / droite</span>
-      <span class="hint-item">💡 Cliquez sur un mot pour le sélectionner</span>
+      <span class="hint-item keyboard-hint">⌨️ <kbd>Espace</kbd> ou <kbd>→</kbd> : Nouvelle carte</span>
+      <span class="hint-item touch-hint">📱 Glisser (Swipe) gauche / droite</span>
+      <span class="hint-item select-hint">💡 Toucher un mot pour le sélectionner</span>
     </div>
 
   </div>
