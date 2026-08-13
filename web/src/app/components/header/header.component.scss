@@ -8,6 +8,10 @@
   z-index: 100;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
   transition: background-color 0.3s ease, border-color 0.3s ease;
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 :host-context([data-theme="dark"]) .app-header {
@@ -23,30 +27,34 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
 }
 
 .brand-logo {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   text-decoration: none;
   color: inherit;
   flex-shrink: 0;
 }
 
 .logo-badge {
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
   background: #0284c7;
   color: #ffffff;
-  border-radius: 10px;
+  border-radius: 9px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 900;
-  font-size: 20px;
+  font-size: 18px;
   box-shadow: 0 2px 8px rgba(2, 132, 199, 0.35);
+  flex-shrink: 0;
 }
 
 .brand-text {
@@ -55,9 +63,9 @@
 }
 
 .brand-title {
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 900;
-  letter-spacing: 1.5px;
+  letter-spacing: 1.2px;
   color: #0f172a;
   line-height: 1.1;
   transition: color 0.3s ease;
@@ -68,11 +76,11 @@
 }
 
 .brand-subtitle {
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: 600;
   color: #64748b;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.4px;
   transition: color 0.3s ease;
 }
 
@@ -83,12 +91,13 @@
 .nav-links {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
   background: rgba(241, 245, 249, 0.7);
-  padding: 4px;
+  padding: 3px;
   border-radius: 12px;
   border: 1px solid rgba(226, 232, 240, 0.8);
   transition: all 0.3s ease;
+  flex-shrink: 0;
 }
 
 :host-context([data-theme="dark"]) .nav-links {
@@ -99,11 +108,11 @@
 .nav-item {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
+  gap: 5px;
+  padding: 5px 10px;
   border-radius: 8px;
   text-decoration: none;
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 600;
   color: #475569;
   transition: all 0.15s ease;
@@ -143,15 +152,15 @@
 .header-status {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   flex-shrink: 0;
 }
 
 .status-pill {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
+  gap: 5px;
+  padding: 4px 8px;
   background: rgba(255, 255, 255, 0.75);
   border: 1px solid #e2e8f0;
   border-radius: 20px;
@@ -159,6 +168,7 @@
   font-weight: 600;
   color: #334155;
   transition: all 0.3s ease;
+  white-space: nowrap;
 
   &.loading {
     color: #94a3b8;
@@ -184,8 +194,8 @@
 }
 
 .status-dot {
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
   background: #10b981;
   border-radius: 50%;
 
@@ -199,19 +209,21 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
+  min-width: 30px;
   background: rgba(241, 245, 249, 0.8);
   border: 1px solid rgba(226, 232, 240, 0.8);
   border-radius: 50%;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 13px;
   transition: all 0.2s ease;
   user-select: none;
+  flex-shrink: 0;
 
   &:hover {
     background: #ffffff;
-    transform: scale(1.08);
+    transform: scale(1.06);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   }
 
@@ -230,26 +242,60 @@
   }
 }
 
+/* ========================================================
+   RESPONSIVE COMPACT POUR SMARTPHONES (<= 640px / 360px)
+   ======================================================== */
 @media (max-width: 640px) {
   .header-container {
-    padding: 8px 10px;
+    padding: 6px 10px;
+    gap: 6px;
   }
 
   .brand-subtitle {
-    display: none;
+    display: none !important;
+  }
+
+  .logo-badge {
+    width: 26px;
+    height: 26px;
+    font-size: 14px;
+    border-radius: 7px;
+  }
+
+  .brand-title {
+    font-size: 13.5px;
+    letter-spacing: 0.6px;
+  }
+
+  /* Hide non-offline word counter pill strictly on mobile */
+  .status-pill:not(.offline) {
+    display: none !important;
+  }
+
+  .nav-links {
+    padding: 2px;
+    gap: 2px;
   }
 
   .nav-item {
-    padding: 6px 8px;
-    font-size: 12px;
+    padding: 4px 6px;
+    font-size: 11px;
+    gap: 2px;
   }
 
   .nav-label {
-    display: none;
+    display: none !important;
   }
 
   .nav-icon {
-    font-size: 18px;
-    margin: 0 2px;
+    font-size: 15px;
+    margin: 0;
+  }
+
+  .theme-toggle-btn {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    font-size: 12px;
   }
 }
