@@ -23,19 +23,29 @@
       </a>
     </nav>
 
-    <!-- Stats & Offline Badge -->
+    <!-- Stats, Theme & Offline Badges -->
     <div class="header-status">
+      <!-- Offline Badge -->
       <span *ngIf="isOffline()" class="status-pill offline" title="Mode hors-ligne actif (PWA Cache)">
         <span class="status-dot offline-dot"></span>
         Hors-ligne
       </span>
+
+      <!-- Word Counter Pill -->
       <span *ngIf="!isOffline() && storage.isLoaded()" class="status-pill" [title]="'Source locale : ' + storage.loadSource()">
         <span class="status-dot"></span>
         {{ storage.totalWordsCount() | number }} mots
       </span>
-      <span *ngIf="storage.isLoading()" class="status-pill loading">
-        Chargement...
-      </span>
+
+      <!-- Theme Switcher Button -->
+      <button 
+        class="theme-toggle-btn" 
+        (click)="themeService.toggleTheme()" 
+        [title]="themeService.isDark() ? 'Passer en mode clair' : 'Passer en mode sombre'"
+        aria-label="Basculer le thème clair / sombre">
+        <span *ngIf="themeService.isDark()" class="theme-icon">☀️</span>
+        <span *ngIf="!themeService.isDark()" class="theme-icon">🌙</span>
+      </button>
     </div>
   </div>
 </header>
