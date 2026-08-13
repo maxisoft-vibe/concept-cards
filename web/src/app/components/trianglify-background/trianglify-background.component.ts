@@ -1,4 +1,4 @@
-import { Component, Input, ElementRef, ViewChild, AfterViewInit, OnChanges, SimpleChanges, HostListener, OnDestroy, signal, inject, ChangeDetectorRef, effect } from '@angular/core';
+import { Component, Input, ElementRef, ViewChild, AfterViewInit, OnChanges, SimpleChanges, HostListener, OnDestroy, signal, inject, ChangeDetectorRef, effect, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ThemeService } from '../../services/theme.service';
 
@@ -136,11 +136,14 @@ export class TrianglifyBackgroundComponent implements AfterViewInit, OnChanges, 
   private resizeTimeout: any;
 
   constructor() {
-    // When dark mode is toggled, smoothly crossfade background
+    // When dark mode is toggled, cleanly crossfade without creating reactive loops
     effect(() => {
+      // Only track isDark change
       const isDark = this.themeService.isDark();
       if (this.isInitialized) {
-        this.crossfadeToNewSeed(this.seed);
+        untracked(() => {
+          this.crossfadeToNewSeed(this.seed);
+        });
       }
     });
   }
@@ -156,7 +159,9 @@ export class TrianglifyBackgroundComponent implements AfterViewInit, OnChanges, 
 
   ngOnChanges(changes: SimpleChanges): void {
     if (this.isInitialized && changes['seed'] && !changes['seed'].firstChange) {
-      this.crossfadeToNewSeed(this.seed);
+      untracked(() => {
+        this.crossfadeToNewSeed(this.seed);
+      });
     }
   }
 
@@ -180,7 +185,9 @@ export class TrianglifyBackgroundComponent implements AfterViewInit, OnChanges, 
   }
 
   private crossfadeToNewSeed(newSeed: number): void {
-    const currentBuf = this.activeBuffer();
+    if (!this.canvasARef?.nativeElement || !this.canvasBRef?.nativeElement) return;
+
+    const currentBuf = untracked(() => this.activeBuffer());
     const nextBuf: 'A' | 'B' = currentBuf === 'A' ? 'B' : 'A';
     const targetCanvas = nextBuf === 'A' ? this.canvasARef.nativeElement : this.canvasBRef.nativeElement;
 
@@ -205,7 +212,7 @@ export class TrianglifyBackgroundComponent implements AfterViewInit, OnChanges, 
     ctx.scale(dpr, dpr);
 
     const rng = mulberry32(seedNumber);
-    const isDark = this.themeService.isDark();
+    const isDark = untracked(() => this.themeService.isDark());
 
     // Continuous, harmonious chromatic wheel calculation
     const baseHue = (Math.abs(seedNumber) * 27.5) % 360;
