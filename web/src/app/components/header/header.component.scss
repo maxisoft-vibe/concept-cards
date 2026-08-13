@@ -1,10 +1,12 @@
 .app-header {
-  background: #ffffff;
-  border-bottom: 1px solid #e2e8f0;
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.6);
   position: sticky;
   top: 0;
   z-index: 100;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
 }
 
 .header-container {
@@ -37,7 +39,7 @@
   justify-content: center;
   font-weight: 900;
   font-size: 20px;
-  box-shadow: 0 2px 5px rgba(2, 132, 199, 0.3);
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.35);
 }
 
 .brand-text {
@@ -65,9 +67,10 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  background: #f1f5f9;
+  background: rgba(241, 245, 249, 0.7);
   padding: 4px;
   border-radius: 12px;
+  border: 1px solid rgba(226, 232, 240, 0.8);
 }
 
 .nav-item {
@@ -85,13 +88,13 @@
 
   &:hover {
     color: #0f172a;
-    background: rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.8);
   }
 
   &.active {
     background: #ffffff;
     color: #0284c7;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   }
 }
 
@@ -110,7 +113,7 @@
   align-items: center;
   gap: 6px;
   padding: 4px 10px;
-  background: #f8fafc;
+  background: rgba(255, 255, 255, 0.75);
   border: 1px solid #e2e8f0;
   border-radius: 20px;
   font-size: 11px;
