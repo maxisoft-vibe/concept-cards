@@ -1,0 +1,104 @@
+<div class="generator-page">
+  
+  <!-- Loading State -->
+  <div *ngIf="storage.isLoading()" class="loading-container">
+    <div class="spinner"></div>
+    <p class="loading-text">Chargement du dictionnaire des 8 695 mots...</p>
+    <p class="loading-sub">Mise en cache locale IndexedDB pour un accès instantané</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="storage.loadingError()" class="error-container">
+    <span class="error-icon">⚠️</span>
+    <p class="error-text">{{ storage.loadingError() }}</p>
+    <button (click)="onGenerateNew()" class="btn btn-secondary">Réessayer</button>
+  </div>
+
+  <!-- Main Generator View -->
+  <div *ngIf="storage.isLoaded()" class="card-display-area">
+    
+    <!-- Top Meta Info & History Counter -->
+    <div class="card-meta-bar">
+      <div class="history-pill" *ngIf="history.historyTotal() > 1">
+        <span>Historique : <strong>{{ history.historyIndex() }}</strong> / {{ history.historyTotal() }}</span>
+      </div>
+      <div class="card-id-pill" *ngIf="history.currentCard()" [title]="'Seed: ' + history.currentCard()?.seed">
+        <span>#{{ history.currentCard()?.id }}</span>
+      </div>
+    </div>
+
+    <!-- Active Secret Word Indicator (if clicked) -->
+    <div *ngIf="selectedWordIndex() !== null" class="secret-word-banner">
+      <span>Mot choisi : <strong>#{{ selectedWordIndex() }}</strong> (cliquez à nouveau pour désélectionner)</span>
+    </div>
+
+    <!-- The Concept Card -->
+    <div class="card-wrapper">
+      <app-concept-card 
+        *ngIf="history.currentCard()"
+        [card]="history.currentCard()!"
+        [showDetails]="showThemes()"
+        [activeWordIndex]="selectedWordIndex()"
+        (selectWord)="onSelectWord($event)">
+      </app-concept-card>
+    </div>
+
+    <!-- Control Actions Toolbar -->
+    <div class="controls-toolbar">
+      <!-- Back Button -->
+      <button 
+        class="btn btn-nav" 
+        [disabled]="!history.canGoBack()" 
+        (click)="onPrevious()"
+        title="Carte précédente (Flèche Gauche)">
+        <span class="btn-icon">⬅</span>
+        <span class="btn-text">Précédente</span>
+      </button>
+
+      <!-- Main Generate Button -->
+      <button 
+        class="btn btn-primary btn-pulse" 
+        (click)="onGenerateNew()"
+        title="Générer une nouvelle carte (Espace)">
+        <span class="btn-icon">🎲</span>
+        <span class="btn-text">Nouvelle Carte</span>
+      </button>
+
+      <!-- Forward / Next Button -->
+      <button 
+        class="btn btn-nav" 
+        (click)="onNextOrNew()"
+        title="Carte suivante (Flèche Droite)">
+        <span class="btn-text">Suivante</span>
+        <span class="btn-icon">➡</span>
+      </button>
+    </div>
+
+    <!-- Secondary Utilities Toolbar -->
+    <div class="secondary-toolbar">
+      <button class="btn btn-ghost" (click)="copyShareLink()" title="Partager cette carte">
+        <span class="btn-icon">📋</span>
+        <span>Copier le lien</span>
+      </button>
+
+      <button class="btn btn-ghost" [class.active]="showThemes()" (click)="toggleThemes()" title="Afficher/Masquer les thèmes d'origine">
+        <span class="btn-icon">ℹ️</span>
+        <span>{{ showThemes() ? 'Masquer détails' : 'Détails thèmes' }}</span>
+      </button>
+    </div>
+
+    <!-- Keyboard & Mobile Help -->
+    <div class="hints-box">
+      <span class="hint-item">⌨️ <kbd>Espace</kbd> ou <kbd>→</kbd> : Nouvelle carte</span>
+      <span class="hint-item">📱 Glisser (Swipe) gauche / droite</span>
+      <span class="hint-item">💡 Cliquez sur un mot pour le sélectionner</span>
+    </div>
+
+  </div>
+
+  <!-- Toast Notification -->
+  <div *ngIf="toastMessage()" class="toast-bubble">
+    {{ toastMessage() }}
+  </div>
+
+</div>

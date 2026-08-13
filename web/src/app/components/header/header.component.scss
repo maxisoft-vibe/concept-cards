@@ -1,0 +1,154 @@
+.app-header {
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.header-container {
+  max-width: 1024px;
+  margin: 0 auto;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.brand-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: inherit;
+  flex-shrink: 0;
+}
+
+.logo-badge {
+  width: 34px;
+  height: 34px;
+  background: #0284c7;
+  color: #ffffff;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 20px;
+  box-shadow: 0 2px 5px rgba(2, 132, 199, 0.3);
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-title {
+  font-size: 17px;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  color: #0f172a;
+  line-height: 1.1;
+}
+
+.brand-subtitle {
+  font-size: 10px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: 12px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+
+  &:hover {
+    color: #0f172a;
+    background: rgba(255, 255, 255, 0.6);
+  }
+
+  &.active {
+    background: #ffffff;
+    color: #0284c7;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  }
+}
+
+.nav-icon {
+  font-size: 14px;
+}
+
+.header-status {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #334155;
+
+  &.loading {
+    color: #94a3b8;
+  }
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  background: #10b981;
+  border-radius: 50%;
+}
+
+@media (max-width: 640px) {
+  .header-container {
+    padding: 8px 10px;
+  }
+
+  .brand-subtitle, .header-status {
+    display: none;
+  }
+
+  .nav-item {
+    padding: 6px 8px;
+    font-size: 12px;
+  }
+
+  .nav-label {
+    display: none;
+  }
+
+  .nav-icon {
+    font-size: 18px;
+    margin: 0 2px;
+  }
+}

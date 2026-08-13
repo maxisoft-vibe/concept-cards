@@ -1,0 +1,118 @@
+<div class="explorer-page">
+  <div class="explorer-container">
+    
+    <!-- Title & Stats -->
+    <div class="explorer-header">
+      <h1 class="page-title">🔍 Dictionnaire de Mots Concept</h1>
+      <p class="page-subtitle">
+        Explorez la base complète des <strong>{{ storage.totalWordsCount() | number }}</strong> termes et expressions générés pour le jeu.
+      </p>
+    </div>
+
+    <!-- Filters Section -->
+    <div class="filters-card">
+      
+      <!-- Search Input -->
+      <div class="search-box">
+        <span class="search-icon">🔎</span>
+        <input 
+          type="text" 
+          [(ngModel)]="searchTerm" 
+          (ngModelChange)="onSearchChange()"
+          placeholder="Rechercher un mot, un titre, un personnage, un proverbe..."
+          class="search-input" />
+        <button *ngIf="searchTerm()" (click)="searchTerm.set(''); onSearchChange()" class="clear-btn">✕</button>
+      </div>
+
+      <div class="filter-row">
+        <!-- Difficulty Badges -->
+        <div class="diff-filters">
+          <button 
+            class="diff-btn" 
+            [class.active]="selectedDifficulty() === null" 
+            (click)="setDifficulty(null)">
+            Tous ({{ storage.totalWordsCount() | number }})
+          </button>
+          <button 
+            class="diff-btn easy" 
+            [class.active]="selectedDifficulty() === 0" 
+            (click)="setDifficulty(0)">
+            🔵 Facile ({{ storage.easyWords().length | number }})
+          </button>
+          <button 
+            class="diff-btn medium" 
+            [class.active]="selectedDifficulty() === 1" 
+            (click)="setDifficulty(1)">
+            🔴 Moyen ({{ storage.mediumWords().length | number }})
+          </button>
+          <button 
+            class="diff-btn hard" 
+            [class.active]="selectedDifficulty() === 2" 
+            (click)="setDifficulty(2)">
+            🔘 Difficile ({{ storage.hardWords().length | number }})
+          </button>
+        </div>
+
+        <!-- Themes Selector -->
+        <div class="theme-select-box">
+          <select (change)="onThemeChange($event)" class="theme-select">
+            <option value="">Tous les thèmes (170)</option>
+            <option *ngFor="let th of themesList()" [value]="th.id">
+              {{ th.title }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Active Filter Status -->
+      <div class="results-summary">
+        <span><strong>{{ totalFilteredCount() | number }}</strong> résultats trouvés</span>
+        <span *ngIf="totalPages() > 1">Page {{ currentPage() }} sur {{ totalPages() }}</span>
+      </div>
+
+    </div>
+
+    <!-- Word List Grid -->
+    <div class="word-grid">
+      <div *ngFor="let item of paginatedWords()" class="word-card" [ngClass]="'diff-' + item.d">
+        <div class="word-card-top">
+          <span class="word-badge" [ngClass]="'badge-' + item.d">
+            {{ getDifficultyLabel(item.d) }}
+          </span>
+          <span *ngIf="item.y" class="word-year">{{ item.y }}</span>
+        </div>
+        <div class="word-name">{{ item.w }}</div>
+        <div class="word-theme-line" *ngIf="item.q && item.q.length > 0">
+          <span class="theme-tag">{{ storage.getThemeTitle(item.q[0]) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="filteredWords().length === 0" class="empty-state">
+      <span class="empty-icon">🧐</span>
+      <p class="empty-title">Aucun mot trouvé</p>
+      <p class="empty-desc">Essayez de modifier votre recherche ou vos filtres.</p>
+    </div>
+
+    <!-- Pagination Controls -->
+    <div *ngIf="totalPages() > 1" class="pagination-bar">
+      <button 
+        class="page-btn" 
+        [disabled]="currentPage() === 1" 
+        (click)="goToPage(currentPage() - 1)">
+        ◀ Précédent
+      </button>
+
+      <span class="page-info">Page {{ currentPage() }} / {{ totalPages() }}</span>
+
+      <button 
+        class="page-btn" 
+        [disabled]="currentPage() === totalPages()" 
+        (click)="goToPage(currentPage() + 1)">
+        Suivant ▶
+      </button>
+    </div>
+
+  </div>
+</div>

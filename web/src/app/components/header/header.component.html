@@ -1,0 +1,37 @@
+<header class="app-header">
+  <div class="header-container">
+    <!-- Brand Logo -->
+    <a routerLink="/" class="brand-logo">
+      <div class="logo-badge">
+        <span class="q-mark">?</span>
+      </div>
+      <div class="brand-text">
+        <span class="brand-title">CONCEPT</span>
+        <span class="brand-subtitle">Générateur de Cartes</span>
+      </div>
+    </a>
+
+    <!-- Navigation Tabs -->
+    <nav class="nav-links">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item">
+        <span class="nav-icon">🎴</span>
+        <span class="nav-label">Générateur</span>
+      </a>
+      <a routerLink="/explorer" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">🔍</span>
+        <span class="nav-label">Dictionnaire</span>
+      </a>
+    </nav>
+
+    <!-- Stats & Offline Badge -->
+    <div class="header-status">
+      <span *ngIf="storage.isLoaded()" class="status-pill" [title]="'Source locale : ' + storage.loadSource()">
+        <span class="status-dot"></span>
+        {{ storage.totalWordsCount() | number }} mots
+      </span>
+      <span *ngIf="storage.isLoading()" class="status-pill loading">
+        Chargement...
+      </span>
+    </div>
+  </div>
+</header>

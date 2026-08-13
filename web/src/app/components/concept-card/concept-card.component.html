@@ -1,0 +1,80 @@
+<div class="concept-card">
+  <div class="concept-card-inner">
+    
+    <!-- 🔵 1. SECTION FACILE (1 à 3) -->
+    <div class="card-section section-easy">
+      <div class="section-badge" title="Facile (1 à 3)">
+        <!-- SVG Smiley Content (Bleu) -->
+        <svg class="badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10" fill="currentColor" fill-opacity="0.15"/>
+          <circle cx="9" cy="10" r="1" fill="currentColor"/>
+          <circle cx="15" cy="10" r="1" fill="currentColor"/>
+          <path d="M8 14s1.5 3 4 3 4-3 4-3"/>
+        </svg>
+      </div>
+
+      <div *ngFor="let item of card.easy; let i = index" 
+           class="item-row" 
+           [class.active-selected]="activeWordIndex === (i + 1)"
+           (click)="onItemClick(i + 1)">
+        <span class="item-num">{{ i + 1 }}</span>
+        <span class="item-text" [title]="item.text + (item.theme ? ' • ' + item.theme : '')">
+          {{ item.text }}
+          <span *ngIf="item.year" class="item-year">({{ item.year }})</span>
+        </span>
+        <span *ngIf="showDetails && item.theme" class="item-theme-tag">{{ item.theme }}</span>
+      </div>
+    </div>
+
+    <!-- 🔴 2. SECTION MOYEN (4 à 6) -->
+    <div class="card-section section-medium">
+      <div class="section-badge" title="Moyen (4 à 6)">
+        <!-- SVG Smiley Neutre (Rouge) -->
+        <svg class="badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10" fill="currentColor" fill-opacity="0.15"/>
+          <circle cx="9" cy="10" r="1" fill="currentColor"/>
+          <circle cx="15" cy="10" r="1" fill="currentColor"/>
+          <line x1="8" y1="15" x2="16" y2="15"/>
+        </svg>
+      </div>
+
+      <div *ngFor="let item of card.medium; let i = index" 
+           class="item-row" 
+           [class.active-selected]="activeWordIndex === (i + 4)"
+           (click)="onItemClick(i + 4)">
+        <span class="item-num">{{ i + 4 }}</span>
+        <span class="item-text" [title]="item.text + (item.theme ? ' • ' + item.theme : '')">
+          {{ item.text }}
+          <span *ngIf="item.year" class="item-year">({{ item.year }})</span>
+        </span>
+        <span *ngIf="showDetails && item.theme" class="item-theme-tag">{{ item.theme }}</span>
+      </div>
+    </div>
+
+    <!-- 🔘 3. SECTION DIFFICILE (7 à 9) -->
+    <div class="card-section section-hard">
+      <div class="section-badge" title="Difficile / Challenge (7 à 9)">
+        <!-- SVG Smiley Inquiet/Grimace (Gris foncé) -->
+        <svg class="badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10" fill="currentColor" fill-opacity="0.15"/>
+          <circle cx="9" cy="10" r="1" fill="currentColor"/>
+          <circle cx="15" cy="10" r="1" fill="currentColor"/>
+          <path d="M8 16s1.5-2 4-2 4 2 4 2"/>
+        </svg>
+      </div>
+
+      <div *ngFor="let item of card.hard; let i = index" 
+           class="item-row" 
+           [class.active-selected]="activeWordIndex === (i + 7)"
+           (click)="onItemClick(i + 7)">
+        <span class="item-num">{{ i + 7 }}</span>
+        <span class="item-text" [title]="item.text + (item.theme ? ' • ' + item.theme : '')">
+          {{ item.text }}
+          <span *ngIf="item.year" class="item-year">({{ item.year }})</span>
+        </span>
+        <span *ngIf="showDetails && item.theme" class="item-theme-tag">{{ item.theme }}</span>
+      </div>
+    </div>
+
+  </div>
+</div>
