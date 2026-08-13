@@ -1,4 +1,4 @@
-import { Injectable, inject, signal, computed, effect } from '@angular/core';
+import { Injectable, inject, signal, computed, effect, untracked } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { CardGeneratorService } from './card-generator.service';
 import { WordStorageService } from './word-storage.service';
@@ -24,22 +24,21 @@ export class CardHistoryService {
   readonly historyIndex = computed(() => this._currentIndex() + 1);
   readonly historyTotal = computed(() => this._history().length);
 
+  private hasInitialCardLoaded = false;
+
   constructor() {
     // When dataset becomes ready, generate initial card or load from URL
     effect(() => {
-      if (this.storage.isLoaded()) {
-        const queryParams = new URLSearchParams(window.location.search || window.location.hash.split('?')[1]);
-        const cardParam = queryParams.get('card') || queryParams.get('id');
-
-        if (cardParam) {
-          this.loadCardById(cardParam, false);
-        } else if (!this._currentCard()) {
-          this.generateNewCard();
-        }
+      const isLoaded = this.storage.isLoaded();
+      if (isLoaded && !this.hasInitialCardLoaded) {
+        this.hasInitialCardLoaded = true;
+        untracked(() => {
+          this.initFirstCard();
+        });
       }
     });
 
-    // Handle browser back/forward buttons
+    // Handle browser native back/forward buttons
     if (typeof window !== 'undefined') {
       window.addEventListener('popstate', () => {
         const hash = window.location.hash;
@@ -51,6 +50,27 @@ export class CardHistoryService {
           this.loadCardById(cardId, false);
         }
       });
+    }
+  }
+
+  private initFirstCard(): void {
+    if (typeof window === 'undefined') return;
+
+    // Parse URL query parameter: handles both ?card=xxx and #/?card=xxx
+    const searchParams = new URLSearchParams(window.location.search);
+    const hash = window.location.hash;
+    const hashQuery = hash.includes('?') ? hash.split('?')[1] : '';
+    const hashParams = new URLSearchParams(hashQuery);
+
+    const cardParam = hashParams.get('card') || hashParams.get('id') || searchParams.get('card') || searchParams.get('id');
+
+    if (cardParam) {
+      const loaded = this.loadCardById(cardParam, false);
+      if (!loaded) {
+        this.generateNewCard();
+      }
+    } else if (!this._currentCard()) {
+      this.generateNewCard();
     }
   }
 
@@ -144,6 +164,8 @@ export class CardHistoryService {
       queryParams: { card: cardId },
       queryParamsHandling: 'merge',
       replaceUrl: replace
+    }).catch(() => {
+      // Ignored
     });
   }
 }
