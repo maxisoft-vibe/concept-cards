@@ -91,21 +91,21 @@
   border-bottom: 2px dotted #fca5a5;
 }
 
-/* 🔘 Section Difficile (Gris / Noir) */
+/* 🔘 Section Difficile (Gris clair) */
 .section-hard {
-  border: 2px solid #334155;
-  background: #cbd5e1;
+  border: 2px solid #475569;
+  background: #f1f5f9;
 }
 .section-hard .badge-icon {
-  color: #334155;
+  color: #475569;
 }
 .section-hard .item-num {
-  border-color: #334155;
+  border-color: #475569;
   color: #1e293b;
-  background: #cbd5e1;
+  background: #ffffff;
 }
 .section-hard .item-row:not(:last-child) {
-  border-bottom: 2px dotted #64748b;
+  border-bottom: 2px dotted #cbd5e1;
 }
 
 /* ========================================================
