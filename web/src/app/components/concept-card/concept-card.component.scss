@@ -13,13 +13,18 @@
   background: #ffffff;
   border-radius: 26px;
   padding: 10px 14px 12px 14px;
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2), 0 3px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18), 0 3px 8px rgba(0, 0, 0, 0.08);
   position: relative;
   user-select: none;
   box-sizing: border-box;
   transform: translateZ(0);
   -webkit-font-smoothing: antialiased;
-  transition: box-shadow 0.2s ease;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+:host-context([data-theme="dark"]) .concept-card {
+  background: #1e293b;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5), 0 3px 10px rgba(0, 0, 0, 0.3);
 }
 
 /* Fausse ligne guide intérieure du jeu */
@@ -29,6 +34,11 @@
   padding: 8px 10px;
   position: relative;
   box-sizing: border-box;
+  transition: border-color 0.3s ease;
+}
+
+:host-context([data-theme="dark"]) .concept-card-inner {
+  border-color: rgba(255, 255, 255, 0.15);
 }
 
 /* Ligne pointillée décorative d'alignement vertical */
@@ -41,6 +51,11 @@
   width: 1px;
   border-left: 1.5px dashed #cbd5e1;
   z-index: 0;
+  transition: border-color 0.3s ease;
+}
+
+:host-context([data-theme="dark"]) .concept-card-inner::before {
+  border-left-color: rgba(255, 255, 255, 0.16);
 }
 
 /* ========================================================
@@ -64,6 +79,7 @@
 /* 🔵 Section Facile (Bleu) */
 .section-easy {
   border: 2px solid #0ea5e9;
+  background: #ffffff;
 }
 .section-easy .badge-icon {
   color: #0ea5e9;
@@ -71,14 +87,33 @@
 .section-easy .item-num {
   border-color: #0ea5e9;
   color: #0ea5e9;
+  background: #ffffff;
 }
 .section-easy .item-row:not(:last-child) {
   border-bottom: 2px dotted #7dd3fc;
 }
 
+:host-context([data-theme="dark"]) .section-easy {
+  border-color: #38bdf8;
+  background: rgba(14, 165, 233, 0.1);
+
+  .badge-icon {
+    color: #38bdf8;
+  }
+  .item-num {
+    border-color: #38bdf8;
+    color: #38bdf8;
+    background: #0f172a;
+  }
+  .item-row:not(:last-child) {
+    border-bottom-color: rgba(56, 189, 248, 0.3);
+  }
+}
+
 /* 🔴 Section Moyen (Rouge) */
 .section-medium {
   border: 2px solid #ef4444;
+  background: #ffffff;
 }
 .section-medium .badge-icon {
   color: #ef4444;
@@ -86,9 +121,27 @@
 .section-medium .item-num {
   border-color: #ef4444;
   color: #ef4444;
+  background: #ffffff;
 }
 .section-medium .item-row:not(:last-child) {
   border-bottom: 2px dotted #fca5a5;
+}
+
+:host-context([data-theme="dark"]) .section-medium {
+  border-color: #f87171;
+  background: rgba(239, 68, 68, 0.1);
+
+  .badge-icon {
+    color: #f87171;
+  }
+  .item-num {
+    border-color: #f87171;
+    color: #f87171;
+    background: #0f172a;
+  }
+  .item-row:not(:last-child) {
+    border-bottom-color: rgba(248, 113, 113, 0.3);
+  }
 }
 
 /* 🔘 Section Difficile (Gris clair) */
@@ -108,6 +161,23 @@
   border-bottom: 2px dotted #cbd5e1;
 }
 
+:host-context([data-theme="dark"]) .section-hard {
+  border-color: #94a3b8;
+  background: rgba(255, 255, 255, 0.05);
+
+  .badge-icon {
+    color: #cbd5e1;
+  }
+  .item-num {
+    border-color: #94a3b8;
+    color: #e2e8f0;
+    background: #0f172a;
+  }
+  .item-row:not(:last-child) {
+    border-bottom-color: rgba(255, 255, 255, 0.15);
+  }
+}
+
 /* ========================================================
    BADGES SMILEY (Haut Droite de chaque cadre)
    ======================================================== */
@@ -124,6 +194,12 @@
   justify-content: center;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
   z-index: 2;
+  transition: background-color 0.3s ease;
+}
+
+:host-context([data-theme="dark"]) .section-badge {
+  background: #1e293b;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
 }
 
 .badge-icon {
@@ -152,6 +228,10 @@
   }
 }
 
+:host-context([data-theme="dark"]) .item-row:hover {
+  background-color: rgba(255, 255, 255, 0.06);
+}
+
 /* Dim unselected items when a concept is active */
 .concept-card.has-selection .item-row:not(.active-selected) {
   opacity: 0.38;
@@ -172,6 +252,17 @@
     box-shadow: 0 0 0 2.5px #0284c7;
     background-color: #0284c7;
     color: #ffffff !important;
+  }
+}
+
+:host-context([data-theme="dark"]) .item-row.active-selected {
+  background-color: rgba(56, 189, 248, 0.2);
+  outline-color: #38bdf8;
+
+  .item-num {
+    box-shadow: 0 0 0 2.5px #38bdf8;
+    background-color: #38bdf8;
+    color: #0f172a !important;
   }
 }
 
@@ -212,6 +303,7 @@
   word-break: break-word;
   white-space: normal;
   display: block;
+  transition: color 0.3s ease;
 
   &.long-title {
     font-size: 12.5px;
@@ -219,11 +311,19 @@
   }
 }
 
+:host-context([data-theme="dark"]) .item-title {
+  color: #f8fafc;
+}
+
 .item-year {
   font-size: 12px;
   font-weight: 500;
   color: #64748b;
   margin-left: 4px;
+}
+
+:host-context([data-theme="dark"]) .item-year {
+  color: #94a3b8;
 }
 
 /* ========================================================
@@ -268,7 +368,17 @@
   line-height: 1.2;
 }
 
+:host-context([data-theme="dark"]) .item-category {
+  background: rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+}
+
 .section-hard .item-category {
   background: rgba(255, 255, 255, 0.65);
   color: #1e293b;
+}
+
+:host-context([data-theme="dark"]) .section-hard .item-category {
+  background: rgba(255, 255, 255, 0.12);
+  color: #e2e8f0;
 }

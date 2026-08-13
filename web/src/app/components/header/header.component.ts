@@ -2,6 +2,7 @@ import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { WordStorageService } from '../../services/word-storage.service';
+import { ThemeService } from '../../services/theme.service';
 
 @Component({
   selector: 'app-header',
@@ -12,6 +13,7 @@ import { WordStorageService } from '../../services/word-storage.service';
 })
 export class HeaderComponent implements OnInit, OnDestroy {
   readonly storage = inject(WordStorageService);
+  readonly themeService = inject(ThemeService);
   readonly isOffline = signal<boolean>(typeof navigator !== 'undefined' ? !navigator.onLine : false);
 
   private onlineHandler = () => this.isOffline.set(false);

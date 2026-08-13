@@ -1,5 +1,6 @@
-import { Component, Input, ElementRef, ViewChild, AfterViewInit, OnChanges, SimpleChanges, HostListener, OnDestroy, signal, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, Input, ElementRef, ViewChild, AfterViewInit, OnChanges, SimpleChanges, HostListener, OnDestroy, signal, inject, ChangeDetectorRef, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ThemeService } from '../../services/theme.service';
 
 function mulberry32(seed: number) {
   return function () {
@@ -79,6 +80,11 @@ interface Point {
       width: 100%;
       height: 100%;
       overflow: hidden;
+      background: #f1f5f9;
+      transition: background-color 0.5s ease;
+    }
+
+    :host-context([data-theme="dark"]) .trianglify-container {
       background: #090d16;
     }
 
@@ -90,7 +96,6 @@ interface Point {
       height: 100%;
       opacity: 0;
       transform: scale(1.02);
-      /* Ultra-smooth, velvety 2.6s crossfade transition */
       transition: opacity 2.6s cubic-bezier(0.33, 1, 0.68, 1), transform 3.0s cubic-bezier(0.33, 1, 0.68, 1);
       will-change: opacity, transform;
 
@@ -106,8 +111,13 @@ interface Point {
       left: 0;
       width: 100%;
       height: 100%;
-      background: radial-gradient(circle at 50% 35%, rgba(15, 23, 42, 0.15) 0%, rgba(9, 13, 22, 0.65) 100%);
+      background: radial-gradient(circle at 50% 35%, rgba(255, 255, 255, 0.25) 0%, rgba(241, 245, 249, 0.6) 100%);
       pointer-events: none;
+      transition: background 0.5s ease;
+    }
+
+    :host-context([data-theme="dark"]) .trianglify-overlay {
+      background: radial-gradient(circle at 50% 35%, rgba(15, 23, 42, 0.15) 0%, rgba(9, 13, 22, 0.65) 100%);
     }
   `]
 })
@@ -119,10 +129,21 @@ export class TrianglifyBackgroundComponent implements AfterViewInit, OnChanges, 
   @ViewChild('canvasA') canvasARef!: ElementRef<HTMLCanvasElement>;
   @ViewChild('canvasB') canvasBRef!: ElementRef<HTMLCanvasElement>;
 
+  readonly themeService = inject(ThemeService);
   private readonly cdr = inject(ChangeDetectorRef);
   readonly activeBuffer = signal<'A' | 'B'>('A');
   private isInitialized = false;
   private resizeTimeout: any;
+
+  constructor() {
+    // When dark mode is toggled, smoothly crossfade background
+    effect(() => {
+      const isDark = this.themeService.isDark();
+      if (this.isInitialized) {
+        this.crossfadeToNewSeed(this.seed);
+      }
+    });
+  }
 
   ngAfterViewInit(): void {
     this.isInitialized = true;
@@ -184,12 +205,26 @@ export class TrianglifyBackgroundComponent implements AfterViewInit, OnChanges, 
     ctx.scale(dpr, dpr);
 
     const rng = mulberry32(seedNumber);
+    const isDark = this.themeService.isDark();
 
     // Continuous, harmonious chromatic wheel calculation
     const baseHue = (Math.abs(seedNumber) * 27.5) % 360;
-    const c1 = hslToRgb(baseHue, 38, 16);
-    const c2 = hslToRgb((baseHue + 28) % 360, 44, 26);
-    const c3 = hslToRgb((baseHue + 56) % 360, 48, 38);
+    
+    let c1: [number, number, number];
+    let c2: [number, number, number];
+    let c3: [number, number, number];
+
+    if (isDark) {
+      // Dark Mode Palettes (Deep & moody)
+      c1 = hslToRgb(baseHue, 38, 16);
+      c2 = hslToRgb((baseHue + 28) % 360, 44, 26);
+      c3 = hslToRgb((baseHue + 56) % 360, 48, 38);
+    } else {
+      // Light Mode Palettes (Luminous & soft pastel)
+      c1 = hslToRgb(baseHue, 48, 76);
+      c2 = hslToRgb((baseHue + 28) % 360, 52, 82);
+      c3 = hslToRgb((baseHue + 56) % 360, 56, 88);
+    }
 
     const cell = width < 600 ? Math.max(70, this.cellSize * 0.75) : this.cellSize;
     const variance = this.variance;
@@ -267,7 +302,6 @@ export class TrianglifyBackgroundComponent implements AfterViewInit, OnChanges, 
       rgb = lerpColor(c2, c3, (t - 0.5) * 2);
     }
 
-    // Ultra-soft facet shading for a satin finish
     const shade = 1 + (rng() - 0.5) * 0.08;
     const r = Math.min(255, Math.max(0, Math.round(rgb[0] * shade)));
     const g = Math.min(255, Math.max(0, Math.round(rgb[1] * shade)));
