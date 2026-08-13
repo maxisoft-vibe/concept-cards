@@ -1,7 +1,7 @@
-const CACHE_NAME = 'concept-pwa-v1';
+const CACHE_NAME = 'concept-pwa-v2';
 
-// Base static assets to precache on installation
-const PRECACHE_ASSETS = [
+// Essential assets to cache on install
+const CORE_ASSETS = [
   './',
   './index.html',
   './manifest.webmanifest',
@@ -10,12 +10,13 @@ const PRECACHE_ASSETS = [
 ];
 
 self.addEventListener('install', (event) => {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(PRECACHE_ASSETS).catch((err) => {
-        console.warn('[SW] Precache partial error (ignored for dynamic bundles):', err);
+      return cache.addAll(CORE_ASSETS).catch((err) => {
+        console.warn('[SW] Core precache notice:', err);
       });
-    }).then(() => self.skipWaiting())
+    })
   );
 });
 
@@ -23,7 +24,11 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
       return Promise.all(
-        keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))
+        keys.map((key) => {
+          if (key !== CACHE_NAME) {
+            return caches.delete(key);
+          }
+        })
       );
     }).then(() => self.clients.claim())
   );
@@ -32,38 +37,49 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const req = event.request;
 
-  // Ignore non-GET requests or non-http(s)
+  // Only handle GET requests for http/https
   if (req.method !== 'GET' || !req.url.startsWith('http')) {
     return;
   }
 
-  // SPA Navigation: fallback to index.html if offline
+  // Navigation requests (HTML pages)
   if (req.mode === 'navigate') {
     event.respondWith(
-      fetch(req).catch(() => {
-        return caches.match('./index.html') || caches.match('index.html');
+      fetch(req).catch(async () => {
+        const cache = await caches.open(CACHE_NAME);
+        return (await cache.match('./index.html')) || (await cache.match('index.html')) || Response.error();
       })
     );
     return;
   }
 
-  // Stale-While-Revalidate Strategy for all assets (JS, CSS, JSON, Images)
+  // All other assets (JS, CSS, JSON, Images)
   event.respondWith(
     caches.match(req).then((cachedResponse) => {
-      const fetchPromise = fetch(req).then((networkResponse) => {
+      if (cachedResponse) {
+        // Fetch update in background
+        fetch(req).then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            caches.open(CACHE_NAME).then((cache) => cache.put(req, networkResponse));
+          }
+        }).catch(() => {});
+        return cachedResponse;
+      }
+
+      // If not in cache, fetch from network
+      return fetch(req).then((networkResponse) => {
         if (networkResponse && networkResponse.status === 200) {
-          const responseToCache = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(req, responseToCache);
-          });
+          const resClone = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(req, resClone));
         }
         return networkResponse;
-      }).catch((err) => {
-        // Network failed (offline), return cached version if exists
-        return cachedResponse;
+      }).catch(async (err) => {
+        // Fallback for offline if not already cached
+        const cache = await caches.open(CACHE_NAME);
+        const match = await cache.match(req);
+        if (match) return match;
+        throw err;
       });
-
-      return cachedResponse || fetchPromise;
     })
   );
 });

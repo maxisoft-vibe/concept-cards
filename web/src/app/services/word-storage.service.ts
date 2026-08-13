@@ -44,53 +44,72 @@ export class WordStorageService {
     this.initDataset();
   }
 
+  getThemeTitle(themeId: number): string {
+    const th = this.themes();
+    return th[themeId] || `Thème #${themeId}`;
+  }
+
   private async initDataset(): Promise<void> {
     this._isLoading.set(true);
     this._loadingError.set(null);
 
     try {
-      // 1. Try loading from IndexedDB first for instant startup
+      // 1. Try loading from IndexedDB first for instant startup (0ms)
       const cached = await this.readFromIndexedDB();
       if (cached && cached.words && cached.words.length > 0) {
         this._dataset.set(cached);
         this._loadSource.set('indexedDB');
         this._isLoading.set(false);
+        console.log(`[WordStorage] Loaded ${cached.words.length} words instantly from IndexedDB cache.`);
         return;
       }
 
       // 2. Fetch from static JSON
       await this.fetchAndCacheDataset();
     } catch (err) {
-      console.warn('IndexedDB unavailable or failed, falling back to direct network fetch:', err);
+      console.warn('[WordStorage] IndexedDB read notice, falling back to direct network fetch:', err);
       try {
         await this.fetchAndCacheDataset();
       } catch (fetchErr: any) {
-        this._loadingError.set(fetchErr?.message || 'Erreur de chargement du dictionnaire');
-        this._isLoading.set(false);
+        console.error('[WordStorage] Critical fetch error:', fetchErr);
+        this._loadingError.set(fetchErr?.message || 'Erreur lors du chargement des données.');
       }
+    } finally {
+      this._isLoading.set(false);
     }
   }
 
   private async fetchAndCacheDataset(): Promise<void> {
-    const res = await fetch('data/words.json');
+    // Resolve URL safely according to document baseURI
+    const base = (typeof document !== 'undefined' && document.baseURI) ? document.baseURI : (typeof window !== 'undefined' ? window.location.href : '/');
+    const jsonUrl = new URL('data/words.json', base).href;
+
+    console.log(`[WordStorage] Fetching dataset from: ${jsonUrl}`);
+    const res = await fetch(jsonUrl, { cache: 'default' });
     if (!res.ok) {
-      throw new Error(`HTTP error ${res.status}: Impossible de charger les données`);
+      throw new Error(`HTTP ${res.status}: Impossible de récupérer ${jsonUrl}`);
     }
     const data: WordsDataset = await res.json();
+    
+    if (!data || !data.words || data.words.length === 0) {
+      throw new Error('Le fichier de dictionnaire est vide ou invalide.');
+    }
+
     this._dataset.set(data);
     this._loadSource.set('network');
     this._isLoading.set(false);
+    console.log(`[WordStorage] Successfully loaded ${data.words.length} words via network.`);
 
-    // Save to IndexedDB asynchronously without blocking UI
+    // Save to IndexedDB asynchronously in the background
     this.writeToIndexedDB(data).catch(err => {
-      console.warn('Failed to save dataset in IndexedDB:', err);
+      console.warn('[WordStorage] IndexedDB write notice (app will continue smoothly in memory):', err);
     });
   }
 
   private openDB(): Promise<IDBDatabase> {
     return new Promise((resolve, reject) => {
       if (typeof window === 'undefined' || !window.indexedDB) {
-        reject(new Error('IndexedDB not supported'));
+        reject(new Error('IndexedDB not supported in this environment'));
         return;
       }
 
@@ -111,15 +130,13 @@ export class WordStorageService {
   private async readFromIndexedDB(): Promise<WordsDataset | null> {
     try {
       const db = await this.openDB();
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve) => {
         const tx = db.transaction(STORE_NAME, 'readonly');
         const store = tx.objectStore(STORE_NAME);
         const req = store.get(DATASET_KEY);
 
-        req.onsuccess = () => {
-          resolve(req.result || null);
-        };
-        req.onerror = () => reject(req.error);
+        req.onsuccess = () => resolve(req.result || null);
+        req.onerror = () => resolve(null);
       });
     } catch {
       return null;
@@ -138,13 +155,7 @@ export class WordStorageService {
         req.onerror = () => reject(req.error);
       });
     } catch (e) {
-      console.warn('Could not cache dataset in IndexedDB:', e);
+      // Ignored
     }
-  }
-
-  getThemeTitle(queryIndex?: number): string {
-    if (queryIndex === undefined || queryIndex === null) return 'Général';
-    const themes = this.themes();
-    return themes[queryIndex.toString()] || `Thème #${queryIndex}`;
   }
 }
