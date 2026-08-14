@@ -1,132 +1,151 @@
 <div class="generator-page">
   
   <!-- Loading State -->
-  <div *ngIf="storage.isLoading()" class="loading-container">
-    <div class="spinner"></div>
-    <p class="loading-text">Chargement du dictionnaire des 8 695 mots...</p>
-    <p class="loading-sub">Mise en cache locale IndexedDB pour un accès instantané</p>
-  </div>
+  @if (storage.isLoading()) {
+    <div class="loading-container">
+      <div class="spinner"></div>
+      <p class="loading-text">Chargement du dictionnaire des 8 695 mots...</p>
+      <p class="loading-sub">Mise en cache locale IndexedDB pour un accès instantané</p>
+    </div>
+  }
 
   <!-- Error State -->
-  <div *ngIf="storage.loadingError()" class="error-container">
-    <span class="error-icon">⚠️</span>
-    <p class="error-text">{{ storage.loadingError() }}</p>
-    <button (click)="onGenerateNew()" class="btn btn-secondary">Réessayer</button>
-  </div>
+  @if (storage.loadingError()) {
+    <div class="error-container">
+      <span class="error-icon">⚠️</span>
+      <p class="error-text">{{ storage.loadingError() }}</p>
+      <button (click)="onGenerateNew()" class="btn btn-secondary">Réessayer</button>
+    </div>
+  }
 
   <!-- Main Generator View -->
-  <div *ngIf="storage.isLoaded()" class="card-display-area">
-    
-    <!-- Top Meta Info & History Counter (Spaced evenly across edges) -->
-    <div class="card-meta-bar">
-      <div class="card-id-pill" *ngIf="history.currentCard()" (click)="copyShareLink()" title="Cliquer pour copier le lien de cette carte">
-        <span>🔗 Graine : <strong>{{ history.currentCard()?.id }}</strong></span>
+  @if (storage.isLoaded()) {
+    <div class="card-display-area">
+      @let currentCard = history.currentCard();
+      @let selectedItem = getSelectedWordItem();
+      @let selectedIndex = selectedWordIndex();
+      
+      <!-- Top Meta Info & History Counter -->
+      <div class="card-meta-bar">
+        @if (currentCard) {
+          <div class="card-id-pill" (click)="copyShareLink()" title="Cliquer pour copier le lien de cette carte">
+            <span>🔗 Graine : <strong>{{ currentCard.id }}</strong></span>
+          </div>
+        }
+        @if (history.historyTotal() > 1) {
+          <div class="history-pill">
+            <span>Historique : <strong>{{ history.historyIndex() }}</strong> / {{ history.historyTotal() }}</span>
+          </div>
+        }
       </div>
-      <div class="history-pill" *ngIf="history.historyTotal() > 1">
-        <span>Historique : <strong>{{ history.historyIndex() }}</strong> / {{ history.historyTotal() }}</span>
-      </div>
-    </div>
 
-    <!-- Active Secret Word Indicator with DuckDuckGo Search Button -->
-    <div *ngIf="selectedWordIndex() !== null && getSelectedWordItem()" class="secret-word-banner">
-      <div class="banner-info">
-        <span class="banner-badge">#{{ selectedWordIndex() }}</span>
-        <span class="banner-title">{{ getSelectedWordItem()?.text }}</span>
-        <span *ngIf="getSelectedWordItem()?.year" class="banner-year">({{ getSelectedWordItem()?.year }})</span>
-      </div>
-      <a [href]="getDuckDuckGoSearchUrl()" 
-         target="_blank" 
-         rel="noopener noreferrer" 
-         class="btn-search" 
-         title="Rechercher sur DuckDuckGo (mode privé)">
-        <svg class="search-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <circle cx="11" cy="11" r="7"/>
-          <line x1="21" y1="21" x2="16.5" y2="16.5"/>
-        </svg>
-        <span class="search-text">Rechercher</span>
-        <svg class="ext-icon" viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-          <polyline points="15 3 21 3 21 9"/>
-          <line x1="10" y1="14" x2="21" y2="3"/>
-        </svg>
-      </a>
-    </div>
-
-    <!-- The Concept Card with Smooth Enter Animation on Card Change -->
-    <div class="card-viewport">
-      <ng-container *ngFor="let card of (history.currentCard() ? [history.currentCard()!] : []); trackBy: trackByCardId">
-        <div class="card-wrapper" [ngClass]="animClass()">
-          <app-concept-card 
-            [card]="card"
-            [showDetails]="showThemes()"
-            [activeWordIndex]="selectedWordIndex()"
-            (selectWord)="onSelectWord($event)">
-          </app-concept-card>
+      <!-- Active Secret Word Indicator with DuckDuckGo Search Button -->
+      @if (selectedIndex !== null && selectedItem) {
+        <div class="secret-word-banner">
+          <div class="banner-info">
+            <span class="banner-badge">#{{ selectedIndex }}</span>
+            <span class="banner-title">{{ selectedItem.text }}</span>
+            @if (selectedItem.year) {
+              <span class="banner-year">({{ selectedItem.year }})</span>
+            }
+          </div>
+          <a [href]="getDuckDuckGoSearchUrl()" 
+             target="_blank" 
+             rel="noopener noreferrer" 
+             class="btn-search" 
+             title="Rechercher sur DuckDuckGo (mode privé)">
+            <svg class="search-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="11" cy="11" r="7"/>
+              <line x1="21" y1="21" x2="16.5" y2="16.5"/>
+            </svg>
+            <span class="search-text">Rechercher</span>
+            <svg class="ext-icon" viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+              <polyline points="15 3 21 3 21 9"/>
+              <line x1="10" y1="14" x2="21" y2="3"/>
+            </svg>
+          </a>
         </div>
-      </ng-container>
+      }
+
+      <!-- The Concept Card with Smooth Enter Animation on Card Change -->
+      <div class="card-viewport">
+        @if (currentCard) {
+          <div class="card-wrapper" [class]="animClass()">
+            <app-concept-card 
+              [card]="currentCard"
+              [showDetails]="showThemes()"
+              [activeWordIndex]="selectedIndex"
+              (selectWord)="onSelectWord($event)">
+            </app-concept-card>
+          </div>
+        }
+      </div>
+
+      <!-- Control Actions Toolbar -->
+      <div class="controls-toolbar">
+        <!-- Back Button -->
+        <button 
+          class="btn btn-nav" 
+          [disabled]="!history.canGoBack()" 
+          (click)="onPrevious()"
+          title="Carte précédente (Flèche Gauche / Glisser Droite)">
+          <span class="btn-icon">⬅</span>
+          <span class="btn-text">Précédente</span>
+        </button>
+
+        <!-- Main Generate Button -->
+        <button 
+          class="btn btn-primary" 
+          (click)="onGenerateNew()"
+          title="Générer une nouvelle carte (Espace / Glisser Gauche)">
+          <span class="btn-icon">🎲</span>
+          <span class="btn-text">Nouvelle Carte</span>
+        </button>
+
+        <!-- Forward / Next Button -->
+        <button 
+          class="btn btn-nav" 
+          (click)="onNextOrNew()"
+          title="Carte suivante (Flèche Droite)">
+          <span class="btn-text">Suivante</span>
+          <span class="btn-icon">➡</span>
+        </button>
+      </div>
+
+      <!-- Secondary Utilities Toolbar -->
+      <div class="secondary-toolbar">
+        <button class="btn btn-ghost" (click)="copyShareLink()" title="Partager cette carte">
+          <span class="btn-icon">📋</span>
+          <span>Lien</span>
+        </button>
+
+        <button class="btn btn-ghost" (click)="downloadSvg()" title="Télécharger la carte au format vectoriel SVG (imprimable)">
+          <span class="btn-icon">📥</span>
+          <span>SVG</span>
+        </button>
+
+        <button class="btn btn-ghost" [class.active]="showThemes()" (click)="toggleThemes()" title="Afficher/Masquer les thèmes d'origine">
+          <span class="btn-icon">💡</span>
+          <span>{{ showThemes() ? 'Masquer indices' : 'Afficher indices' }}</span>
+        </button>
+      </div>
+
+      <!-- Keyboard & Mobile Help -->
+      <div class="hints-box">
+        <span class="hint-item keyboard-hint">⌨️ <kbd>Espace</kbd> ou <kbd>→</kbd> : Nouvelle carte</span>
+        <span class="hint-item touch-hint">📱 Glisser (Swipe) gauche / droite</span>
+        <span class="hint-item select-hint">💡 Toucher un mot pour le sélectionner</span>
+      </div>
+
     </div>
-
-    <!-- Control Actions Toolbar -->
-    <div class="controls-toolbar">
-      <!-- Back Button -->
-      <button 
-        class="btn btn-nav" 
-        [disabled]="!history.canGoBack()" 
-        (click)="onPrevious()"
-        title="Carte précédente (Flèche Gauche / Glisser Droite)">
-        <span class="btn-icon">⬅</span>
-        <span class="btn-text">Précédente</span>
-      </button>
-
-      <!-- Main Generate Button -->
-      <button 
-        class="btn btn-primary" 
-        (click)="onGenerateNew()"
-        title="Générer une nouvelle carte (Espace / Glisser Gauche)">
-        <span class="btn-icon">🎲</span>
-        <span class="btn-text">Nouvelle Carte</span>
-      </button>
-
-      <!-- Forward / Next Button -->
-      <button 
-        class="btn btn-nav" 
-        (click)="onNextOrNew()"
-        title="Carte suivante (Flèche Droite)">
-        <span class="btn-text">Suivante</span>
-        <span class="btn-icon">➡</span>
-      </button>
-    </div>
-
-    <!-- Secondary Utilities Toolbar -->
-    <div class="secondary-toolbar">
-      <button class="btn btn-ghost" (click)="copyShareLink()" title="Partager cette carte">
-        <span class="btn-icon">📋</span>
-        <span>Lien</span>
-      </button>
-
-      <button class="btn btn-ghost" (click)="downloadSvg()" title="Télécharger la carte au format vectoriel SVG (imprimable)">
-        <span class="btn-icon">📥</span>
-        <span>SVG</span>
-      </button>
-
-      <button class="btn btn-ghost" [class.active]="showThemes()" (click)="toggleThemes()" title="Afficher/Masquer les thèmes d'origine">
-        <span class="btn-icon">💡</span>
-        <span>{{ showThemes() ? 'Masquer indices' : 'Afficher indices' }}</span>
-      </button>
-    </div>
-
-    <!-- Keyboard & Mobile Help -->
-    <div class="hints-box">
-      <span class="hint-item keyboard-hint">⌨️ <kbd>Espace</kbd> ou <kbd>→</kbd> : Nouvelle carte</span>
-      <span class="hint-item touch-hint">📱 Glisser (Swipe) gauche / droite</span>
-      <span class="hint-item select-hint">💡 Toucher un mot pour le sélectionner</span>
-    </div>
-
-  </div>
+  }
 
   <!-- Toast Notification -->
-  <div *ngIf="toastMessage()" class="toast-bubble">
-    {{ toastMessage() }}
-  </div>
+  @if (toastMessage()) {
+    <div class="toast-bubble">
+      {{ toastMessage() }}
+    </div>
+  }
 
 </div>

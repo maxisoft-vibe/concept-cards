@@ -1,5 +1,4 @@
-import { Component, inject, signal, HostListener, effect } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject, signal, HostListener, effect, ChangeDetectionStrategy } from '@angular/core';
 import { CardHistoryService } from '../../services/card-history.service';
 import { WordStorageService } from '../../services/word-storage.service';
 import { CardSvgExporterService } from '../../services/card-svg-exporter.service';
@@ -7,10 +6,10 @@ import { ConceptCardComponent } from '../../components/concept-card/concept-card
 
 @Component({
   selector: 'app-card-generator',
-  standalone: true,
-  imports: [CommonModule, ConceptCardComponent],
+  imports: [ConceptCardComponent],
   templateUrl: './card-generator.component.html',
-  styleUrls: ['./card-generator.component.scss']
+  styleUrls: ['./card-generator.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CardGeneratorComponent {
   readonly history = inject(CardHistoryService);
@@ -107,10 +106,6 @@ export class CardGeneratorComponent {
       this.history.generateNewCard();
       this.showToast('Nouvelle carte générée !');
     }
-  }
-
-  trackByCardId(index: number, card: any): string {
-    return card?.id ?? String(index);
   }
 
   private triggerCardAnimation(): void {

@@ -26,16 +26,20 @@
     <!-- Stats, Theme & Offline Badges -->
     <div class="header-status">
       <!-- Offline Badge -->
-      <span *ngIf="isOffline()" class="status-pill offline" title="Mode hors-ligne actif (PWA Cache)">
-        <span class="status-dot offline-dot"></span>
-        Hors-ligne
-      </span>
+      @if (isOffline()) {
+        <span class="status-pill offline" title="Mode hors-ligne actif (PWA Cache)">
+          <span class="status-dot offline-dot"></span>
+          Hors-ligne
+        </span>
+      }
 
       <!-- Word Counter Pill -->
-      <span *ngIf="!isOffline() && storage.isLoaded()" class="status-pill" [title]="'Source locale : ' + storage.loadSource()">
-        <span class="status-dot"></span>
-        {{ storage.totalWordsCount() | number }} mots
-      </span>
+      @if (!isOffline() && storage.isLoaded()) {
+        <span class="status-pill" [title]="'Source locale : ' + storage.loadSource()">
+          <span class="status-dot"></span>
+          {{ storage.totalWordsCount() | number }} mots
+        </span>
+      }
 
       <!-- Theme Switcher Button -->
       <button 
@@ -43,8 +47,11 @@
         (click)="themeService.toggleTheme()" 
         [title]="themeService.isDark() ? 'Passer en mode clair' : 'Passer en mode sombre'"
         aria-label="Basculer le thème clair / sombre">
-        <span *ngIf="themeService.isDark()" class="theme-icon">☀️</span>
-        <span *ngIf="!themeService.isDark()" class="theme-icon">🌙</span>
+        @if (themeService.isDark()) {
+          <span class="theme-icon">☀️</span>
+        } @else {
+          <span class="theme-icon">🌙</span>
+        }
       </button>
     </div>
   </div>
