@@ -34,11 +34,20 @@
 
 ## 🛠️ Technologies
 
-- **Frontend** : Angular 19+ (Zoneless Change Detection, Signals, Signal Inputs/Outputs/Queries, Control Flow `@if`/`@for`, SCSS Vanilla)
-- **Tests** : Vitest + JSDOM + `@analogjs/vite-plugin-angular` (28 tests unitaires)
-- **Rendu Vectoriel** : Pure SVG & HTML/CSS (compatible navigateurs récents et anciens Android WebView)
+- **Frontend** : Angular 22 (Zoneless Change Detection, Signals, Signal Inputs/Outputs/Queries, Control Flow `@if`/`@for`/`@let`, SCSS Vanilla)
+- **Tests** : Vitest 4 + JSDOM 30 + `@analogjs/vite-plugin-angular` (28 tests unitaires)
+- **Rendu Vectoriel** : Pure SVG & HTML/CSS
 - **Algorithme de Triangulation** : Trianglify en pur TypeScript avec PRNG Mulberry32
-- **Déploiement** : GitHub Pages via GitHub Actions automatisé (`deploy.yml`) avec validation des tests
+- **Déploiement** : GitHub Pages via GitHub Actions automatisé (`deploy.yml`) sous **Node.js 24 LTS**
+
+---
+
+## 📚 Documentation
+
+Consultez les guides techniques détaillés dans le dossier [`docs/`](docs/) :
+- [**01. Word Generator Journey**](docs/journey/01_WORD_GENERATOR_JOURNEY.md) : Génération du dataset de 8 695 mots avec DeepSeek & LiteLLM.
+- [**02. Web App & PWA Journey**](docs/journey/02_WEB_APP_AND_PWA_JOURNEY.md) : Architecture de l'application web, PWA et design responsive.
+- [**03. Angular 22 & Modernization Journey**](docs/journey/03_ANGULAR22_ZONELESS_CI_AND_TESTING_JOURNEY.md) : Migration Angular 22, Zoneless, Vitest 4, BFG et CI/CD.
 
 ---
 
@@ -54,6 +63,10 @@ npm install
 # Lancer la suite de tests unitaires (Vitest)
 npm test
 
+# Lancer les vérifications de types et linting
+npm run type-check
+npm run lint
+
 # Lancer le serveur de développement
 npm start
 ```
@@ -64,4 +77,4 @@ Rendez-vous sur `http://localhost:4200/`.
 
 ## 📦 Déploiement GitHub Pages
 
-Le déploiement est entièrement automatisé à chaque `git push` sur la branche `main` grâce au workflow GitHub Actions [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) (avec exécution préalable des tests Vitest sous Node.js 22+).
+Le déploiement est entièrement automatisé à chaque `git push` sur la branche `main` grâce au workflow GitHub Actions [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) (avec exécution préalable du linter, du vérificateur de types et des tests Vitest sous Node.js 24 LTS).
