@@ -47,13 +47,17 @@ htmlcov/
 .mypy_cache/
 .ruff_cache/
 
-# --- Temporary & Backup Files ---
+# --- Generated Large Data & Cache Files ---
 *.bak
 *.tmp
 *.swp
 *~
-res/cache_words_gen.json
+res/cache_words_gen.json*
+res/words_generated.json*
+res/words_compact.json*
 res/test_*.json
+web/public/data/words.json
+bfg.jar
 scratch/
 
 # --- OS Specific Files ---
