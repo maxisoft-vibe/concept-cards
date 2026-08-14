@@ -35,6 +35,11 @@ jobs:
         working-directory: ./web
         run: npm ci
 
+      - name: Download dataset from release
+        run: |
+          mkdir -p web/public/data
+          curl -fsSL https://github.com/maxisoft-vibe/concept-cards/releases/download/data/words.json -o web/public/data/words.json
+
       - name: Code Quality & Lint
         working-directory: ./web
         run: npm run lint

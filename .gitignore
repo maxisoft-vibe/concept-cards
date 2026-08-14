@@ -58,6 +58,8 @@ res/words_compact.json*
 res/test_*.json
 web/public/data/words.json
 bfg.jar
+*.bfg-report/
+.bfg-report/
 scratch/
 
 # --- OS Specific Files ---
