@@ -1,24 +1,16 @@
-name: Deploy Angular App to GitHub Pages
+name: CI Quality Gate & Tests
 
 on:
-  push:
+  pull_request:
     branches: [ main, master ]
   workflow_dispatch:
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
 concurrency:
-  group: "pages"
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  build-and-deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  web-ci:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -43,22 +35,10 @@ jobs:
         working-directory: ./web
         run: npm run type-check
 
-      - name: Run Tests (Vitest)
+      - name: Run Unit Tests (Vitest)
         working-directory: ./web
         run: npm test
 
-      - name: Build Angular app
+      - name: Verify Production Build
         working-directory: ./web
         run: npm run build:gh-pages
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: './web/dist/web/browser'
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4

@@ -1,0 +1,36 @@
+version: 2
+updates:
+  # Maintain NPM dependencies for the web application
+  - package-ecosystem: "npm"
+    directory: "/web"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    groups:
+      angular:
+        patterns:
+          - "@angular*"
+      testing:
+        patterns:
+          - "vitest*"
+          - "@analogjs*"
+          - "jsdom"
+      eslint:
+        patterns:
+          - "eslint*"
+          - "@angular-eslint*"
+          - "typescript-eslint"
+
+  # Maintain GitHub Actions dependencies
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+
+  # Maintain Python backend dependencies
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5

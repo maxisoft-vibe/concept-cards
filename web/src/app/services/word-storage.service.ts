@@ -1,5 +1,5 @@
 import { Injectable, signal, computed } from '@angular/core';
-import { WordItem, WordsDataset } from '../models/concept.models';
+import { WordsDataset } from '../models/concept.models';
 
 const DB_NAME = 'ConceptCardDB';
 const DB_VERSION = 1;
@@ -154,7 +154,7 @@ export class WordStorageService {
         req.onsuccess = () => resolve();
         req.onerror = () => reject(req.error);
       });
-    } catch (e) {
+    } catch {
       // Ignored
     }
   }

@@ -21,7 +21,7 @@ export class ThemeService {
       this.updateEffectiveTheme(theme);
       try {
         localStorage.setItem(STORAGE_KEY, theme);
-      } catch (e) {
+      } catch {
         // Ignore localStorage errors (e.g. private browsing storage quota)
       }
     });
