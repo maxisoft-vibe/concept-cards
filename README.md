@@ -26,6 +26,7 @@
 - 🌓 **Mode Sombre & Clair** :
   - Détection automatique des préférences du système et bouton de bascule dédié dans l'en-tête (sauvegardé dans le navigateur).
 - ⚡ **100 % Hors-ligne & PWA (Progressive Web App)** :
+  - Architecture **Zoneless** ultra-légère sans `zone.js` (gain de taille de bundle).
   - Mise en cache automatique via Service Worker (`sw.js`) et base de données locale **IndexedDB**.
   - Installable comme application autonome sur smartphone (Android/iOS) et ordinateur.
 
@@ -33,10 +34,11 @@
 
 ## 🛠️ Technologies
 
-- **Frontend** : Angular 19 (Standalone Components, Signals, SCSS Vanilla)
+- **Frontend** : Angular 19+ (Zoneless Change Detection, Signals, Signal Inputs/Outputs/Queries, Control Flow `@if`/`@for`, SCSS Vanilla)
+- **Tests** : Vitest + JSDOM + `@analogjs/vite-plugin-angular` (28 tests unitaires)
 - **Rendu Vectoriel** : Pure SVG & HTML/CSS (compatible navigateurs récents et anciens Android WebView)
 - **Algorithme de Triangulation** : Trianglify en pur TypeScript avec PRNG Mulberry32
-- **Déploiement** : GitHub Pages via GitHub Actions automatisé (`deploy.yml`)
+- **Déploiement** : GitHub Pages via GitHub Actions automatisé (`deploy.yml`) avec validation des tests
 
 ---
 
@@ -49,6 +51,9 @@ cd web
 # Installer les dépendances
 npm install
 
+# Lancer la suite de tests unitaires (Vitest)
+npm test
+
 # Lancer le serveur de développement
 npm start
 ```
@@ -59,4 +64,4 @@ Rendez-vous sur `http://localhost:4200/`.
 
 ## 📦 Déploiement GitHub Pages
 
-Le déploiement est entièrement automatisé à chaque `git push` sur la branche `main` grâce au workflow GitHub Actions [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml).
+Le déploiement est entièrement automatisé à chaque `git push` sur la branche `main` grâce au workflow GitHub Actions [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) (avec exécution préalable des tests Vitest sous Node.js 22+).

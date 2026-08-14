@@ -1,5 +1,4 @@
-import { Component, Input, ElementRef, ViewChild, AfterViewInit, OnChanges, SimpleChanges, HostListener, OnDestroy, signal, inject, ChangeDetectorRef, effect, untracked } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, ElementRef, viewChild, input, AfterViewInit, HostListener, OnDestroy, signal, inject, ChangeDetectorRef, effect, untracked, ChangeDetectionStrategy } from '@angular/core';
 import { ThemeService } from '../../services/theme.service';
 
 function mulberry32(seed: number) {
@@ -52,8 +51,6 @@ interface Point {
 
 @Component({
   selector: 'app-trianglify-background',
-  standalone: true,
-  imports: [CommonModule],
   template: `
     <div class="trianglify-container">
       <canvas #canvasA class="trianglify-canvas" [class.visible]="activeBuffer() === 'A'"></canvas>
@@ -119,15 +116,16 @@ interface Point {
     :host-context([data-theme="dark"]) .trianglify-overlay {
       background: radial-gradient(circle at 50% 35%, rgba(15, 23, 42, 0.15) 0%, rgba(9, 13, 22, 0.65) 100%);
     }
-  `]
+  `],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TrianglifyBackgroundComponent implements AfterViewInit, OnChanges, OnDestroy {
-  @Input() seed: number = 42;
-  @Input() cellSize: number = 110;
-  @Input() variance: number = 0.45;
+export class TrianglifyBackgroundComponent implements AfterViewInit, OnDestroy {
+  readonly seed = input<number>(42);
+  readonly cellSize = input<number>(110);
+  readonly variance = input<number>(0.45);
 
-  @ViewChild('canvasA') canvasARef!: ElementRef<HTMLCanvasElement>;
-  @ViewChild('canvasB') canvasBRef!: ElementRef<HTMLCanvasElement>;
+  readonly canvasARef = viewChild<ElementRef<HTMLCanvasElement>>('canvasA');
+  readonly canvasBRef = viewChild<ElementRef<HTMLCanvasElement>>('canvasB');
 
   readonly themeService = inject(ThemeService);
   private readonly cdr = inject(ChangeDetectorRef);
@@ -136,13 +134,14 @@ export class TrianglifyBackgroundComponent implements AfterViewInit, OnChanges, 
   private resizeTimeout: any;
 
   constructor() {
-    // When dark mode is toggled, cleanly crossfade without creating reactive loops
+    // When dark mode or seed changes, cleanly crossfade without creating reactive loops
     effect(() => {
-      // Only track isDark change
-      const isDark = this.themeService.isDark();
+      // Track theme and seed reactively
+      this.themeService.isDark();
+      const currentSeed = this.seed();
       if (this.isInitialized) {
         untracked(() => {
-          this.crossfadeToNewSeed(this.seed);
+          this.crossfadeToNewSeed(currentSeed);
         });
       }
     });
@@ -151,18 +150,11 @@ export class TrianglifyBackgroundComponent implements AfterViewInit, OnChanges, 
   ngAfterViewInit(): void {
     this.isInitialized = true;
     requestAnimationFrame(() => {
-      if (this.canvasARef?.nativeElement) {
-        this.drawTriangles(this.canvasARef.nativeElement, this.seed);
+      const canvasA = this.canvasARef()?.nativeElement;
+      if (canvasA) {
+        this.drawTriangles(canvasA, this.seed());
       }
     });
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (this.isInitialized && changes['seed'] && !changes['seed'].firstChange) {
-      untracked(() => {
-        this.crossfadeToNewSeed(this.seed);
-      });
-    }
   }
 
   @HostListener('window:resize')
@@ -171,10 +163,10 @@ export class TrianglifyBackgroundComponent implements AfterViewInit, OnChanges, 
     this.resizeTimeout = setTimeout(() => {
       if (this.isInitialized) {
         const activeCanvas = this.activeBuffer() === 'A' 
-          ? this.canvasARef?.nativeElement 
-          : this.canvasBRef?.nativeElement;
+          ? this.canvasARef()?.nativeElement 
+          : this.canvasBRef()?.nativeElement;
         if (activeCanvas) {
-          this.drawTriangles(activeCanvas, this.seed);
+          this.drawTriangles(activeCanvas, this.seed());
         }
       }
     }, 250);
@@ -185,11 +177,13 @@ export class TrianglifyBackgroundComponent implements AfterViewInit, OnChanges, 
   }
 
   private crossfadeToNewSeed(newSeed: number): void {
-    if (!this.canvasARef?.nativeElement || !this.canvasBRef?.nativeElement) return;
+    const canvasA = this.canvasARef()?.nativeElement;
+    const canvasB = this.canvasBRef()?.nativeElement;
+    if (!canvasA || !canvasB) return;
 
     const currentBuf = untracked(() => this.activeBuffer());
     const nextBuf: 'A' | 'B' = currentBuf === 'A' ? 'B' : 'A';
-    const targetCanvas = nextBuf === 'A' ? this.canvasARef.nativeElement : this.canvasBRef.nativeElement;
+    const targetCanvas = nextBuf === 'A' ? canvasA : canvasB;
 
     // Draw softly on background canvas
     this.drawTriangles(targetCanvas, newSeed);
@@ -233,8 +227,9 @@ export class TrianglifyBackgroundComponent implements AfterViewInit, OnChanges, 
       c3 = hslToRgb((baseHue + 56) % 360, 56, 88);
     }
 
-    const cell = width < 600 ? Math.max(70, this.cellSize * 0.75) : this.cellSize;
-    const variance = this.variance;
+    const currentCellSize = this.cellSize();
+    const cell = width < 600 ? Math.max(70, currentCellSize * 0.75) : currentCellSize;
+    const variance = this.variance();
 
     const cols = Math.ceil(width / cell) + 2;
     const rows = Math.ceil(height / cell) + 2;

@@ -1,59 +1,49 @@
-# Web
+# Concept Cards Web Application
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.1.8.
+> **Application web Angular moderne, réactive et 100 % hors-ligne (PWA) pour le jeu Concept.**
 
-## Development server
+---
 
-To start a local development server, run:
+## 🛠️ Stack Technique
 
-```bash
-ng serve
-```
+* **Framework** : Angular 19+ (Zoneless Change Detection, OnPush, Signals, Signal Inputs/Outputs/Queries, Control Flow `@if`/`@for`/`@let`/`@empty`)
+* **Tests Unitaires** : Vitest + JSDOM + `@analogjs/vite-plugin-angular`
+* **Performance** : 0 polyfills runtime (`zone.js` éliminé), ~92 kB transfer initial
+* **Rendu & Mathématiques** : Algorithme de triangulation Trianglify en pur TypeScript + PRNG Mulberry32 déterministe
+* **Persistance & Hors-ligne** : IndexedDB (`ConceptCardDB`) + Service Worker (`sw.js`)
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+---
 
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## 📜 Commandes Disponibles
 
 ```bash
-ng generate --help
+# Lancer le serveur de développement local
+npm start
+# ou
+npm run ng serve
+
+# Lancer la suite complète de tests unitaires (Vitest)
+npm test
+
+# Lancer Vitest en mode interactif / watch
+npm run test:watch
+
+# Compiler le bundle de production standard
+npm run build
+
+# Compiler le bundle de production pour GitHub Pages (base-href relative)
+npm run build:gh-pages
 ```
 
-## Building
+---
 
-To build the project run:
+## 🧪 Structure des Tests
 
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Les tests unitaires couvrent l'intégralité des services et composants clés :
+* `src/app/services/card-generator.service.spec.ts` : Déterminisme Mulberry32, répartition 3-3-3 et diversité thématique.
+* `src/app/services/card-svg-exporter.service.spec.ts` : Échappement XML, dimensions et déclencheur de téléchargement.
+* `src/app/services/theme.service.spec.ts` : Bascule de thème, persistance et synchronisation DOM.
+* `src/app/services/card-history.service.spec.ts` : Pile d'historique de navigation et synchronisation des graines.
+* `src/app/services/word-storage.service.spec.ts` : Chargement du dictionnaire et calcul des signaux réactifs.
+* `src/app/components/concept-card/concept-card.component.spec.ts` : Liaisons Signal Inputs et émissions d'événements.
+* `src/app/app.component.spec.ts` : Démarrage et intégration de l'application.

@@ -24,7 +24,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Setup Node.js (LTS v22+)
         uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -34,6 +34,10 @@ jobs:
       - name: Install dependencies
         working-directory: ./web
         run: npm ci
+
+      - name: Run Tests (Vitest)
+        working-directory: ./web
+        run: npm test
 
       - name: Build Angular app
         working-directory: ./web

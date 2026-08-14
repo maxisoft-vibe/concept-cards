@@ -21,7 +21,9 @@
           (ngModelChange)="onSearchChange()"
           placeholder="Rechercher un mot, un titre, un personnage, un proverbe..."
           class="search-input" />
-        <button *ngIf="searchTerm()" (click)="searchTerm.set(''); onSearchChange()" class="clear-btn">✕</button>
+        @if (searchTerm()) {
+          <button (click)="searchTerm.set(''); onSearchChange()" class="clear-btn">✕</button>
+        }
       </div>
 
       <div class="filter-row">
@@ -57,9 +59,11 @@
         <div class="theme-select-box">
           <select (change)="onThemeChange($event)" class="theme-select">
             <option value="">Tous les thèmes (170)</option>
-            <option *ngFor="let th of themesList()" [value]="th.id">
-              {{ th.title }}
-            </option>
+            @for (th of themesList(); track th.id) {
+              <option [value]="th.id">
+                {{ th.title }}
+              </option>
+            }
           </select>
         </div>
       </div>
@@ -67,52 +71,61 @@
       <!-- Active Filter Status -->
       <div class="results-summary">
         <span><strong>{{ totalFilteredCount() | number }}</strong> résultats trouvés</span>
-        <span *ngIf="totalPages() > 1">Page {{ currentPage() }} sur {{ totalPages() }}</span>
+        @if (totalPages() > 1) {
+          <span>Page {{ currentPage() }} sur {{ totalPages() }}</span>
+        }
       </div>
 
     </div>
 
     <!-- Word List Grid -->
     <div class="word-grid">
-      <div *ngFor="let item of paginatedWords()" class="word-card" [ngClass]="'diff-' + item.d">
-        <div class="word-card-top">
-          <span class="word-badge" [ngClass]="'badge-' + item.d">
-            {{ getDifficultyLabel(item.d) }}
-          </span>
-          <span *ngIf="item.y" class="word-year">{{ item.y }}</span>
+      @for (item of paginatedWords(); track item.w + '-' + item.d) {
+        <div class="word-card" [class]="'diff-' + item.d">
+          <div class="word-card-top">
+            <span class="word-badge" [class]="'badge-' + item.d">
+              {{ getDifficultyLabel(item.d) }}
+            </span>
+            @if (item.y) {
+              <span class="word-year">{{ item.y }}</span>
+            }
+          </div>
+          <div class="word-name">{{ item.w }}</div>
+          @if (item.q && item.q.length > 0) {
+            <div class="word-theme-line">
+              <span class="theme-tag">{{ storage.getThemeTitle(item.q[0]) }}</span>
+            </div>
+          }
         </div>
-        <div class="word-name">{{ item.w }}</div>
-        <div class="word-theme-line" *ngIf="item.q && item.q.length > 0">
-          <span class="theme-tag">{{ storage.getThemeTitle(item.q[0]) }}</span>
+      } @empty {
+        <div class="empty-state">
+          <span class="empty-icon">🧐</span>
+          <p class="empty-title">Aucun mot trouvé</p>
+          <p class="empty-desc">Essayez de modifier votre recherche ou vos filtres.</p>
         </div>
-      </div>
-    </div>
-
-    <!-- Empty State -->
-    <div *ngIf="filteredWords().length === 0" class="empty-state">
-      <span class="empty-icon">🧐</span>
-      <p class="empty-title">Aucun mot trouvé</p>
-      <p class="empty-desc">Essayez de modifier votre recherche ou vos filtres.</p>
+      }
     </div>
 
     <!-- Pagination Controls -->
-    <div *ngIf="totalPages() > 1" class="pagination-bar">
-      <button 
-        class="page-btn" 
-        [disabled]="currentPage() === 1" 
-        (click)="goToPage(currentPage() - 1)">
-        ◀ Précédent
-      </button>
+    @if (totalPages() > 1) {
+      <div class="pagination-bar">
+        <button 
+          class="page-btn" 
+          [disabled]="currentPage() === 1" 
+          (click)="goToPage(currentPage() - 1)">
+          ◀ Précédent
+        </button>
 
-      <span class="page-info">Page {{ currentPage() }} / {{ totalPages() }}</span>
+        <span class="page-info">Page {{ currentPage() }} / {{ totalPages() }}</span>
 
-      <button 
-        class="page-btn" 
-        [disabled]="currentPage() === totalPages()" 
-        (click)="goToPage(currentPage() + 1)">
-        Suivant ▶
-      </button>
-    </div>
+        <button 
+          class="page-btn" 
+          [disabled]="currentPage() === totalPages()" 
+          (click)="goToPage(currentPage() + 1)">
+          Suivant ▶
+        </button>
+      </div>
+    }
 
   </div>
 </div>

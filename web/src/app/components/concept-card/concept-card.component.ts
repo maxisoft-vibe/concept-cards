@@ -1,19 +1,17 @@
-import { Component, Input, Output, EventEmitter, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, input, output, signal, ChangeDetectionStrategy } from '@angular/core';
 import { ConceptCard } from '../../models/concept.models';
 
 @Component({
   selector: 'app-concept-card',
-  standalone: true,
-  imports: [CommonModule],
   templateUrl: './concept-card.component.html',
-  styleUrls: ['./concept-card.component.scss']
+  styleUrls: ['./concept-card.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ConceptCardComponent {
-  @Input({ required: true }) card!: ConceptCard;
-  @Input() showDetails = false;
-  @Input() activeWordIndex: number | null = null;
-  @Output() selectWord = new EventEmitter<number>();
+  readonly card = input.required<ConceptCard>();
+  readonly showDetails = input<boolean>(false);
+  readonly activeWordIndex = input<number | null>(null);
+  readonly selectWord = output<number>();
 
   copied = signal<boolean>(false);
 

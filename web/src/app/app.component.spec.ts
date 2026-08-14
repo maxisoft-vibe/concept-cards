@@ -1,10 +1,30 @@
+import { describe, it, expect, beforeEach } from 'vitest';
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { AppComponent } from './app.component';
+import { CardHistoryService } from './services/card-history.service';
+import { WordStorageService } from './services/word-storage.service';
+import { signal } from '@angular/core';
 
 describe('AppComponent', () => {
   beforeEach(async () => {
+    const mockHistory = {
+      currentCard: signal(null)
+    };
+    const mockStorage = {
+      isLoaded: signal(false),
+      isLoading: signal(false),
+      totalWordsCount: signal(0),
+      loadSource: signal('network')
+    };
+
     await TestBed.configureTestingModule({
       imports: [AppComponent],
+      providers: [
+        provideRouter([]),
+        { provide: CardHistoryService, useValue: mockHistory },
+        { provide: WordStorageService, useValue: mockStorage }
+      ]
     }).compileComponents();
   });
 
@@ -14,16 +34,9 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it(`should have the 'web' title`, () => {
+  it('should have the Concept title', () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
-    expect(app.title).toEqual('web');
-  });
-
-  it('should render title', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    fixture.detectChanges();
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, web');
+    expect(app.title).toContain('Concept');
   });
 });

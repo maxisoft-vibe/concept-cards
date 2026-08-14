@@ -1,4 +1,4 @@
-<div class="concept-card" [class.has-selection]="activeWordIndex !== null">
+<div class="concept-card" [class.has-selection]="activeWordIndex() !== null">
   <div class="concept-card-inner">
     
     <!-- 🔵 1. SECTION FACILE (1 à 3) -->
@@ -13,23 +13,29 @@
         </svg>
       </div>
 
-      <div *ngFor="let item of card.easy; let i = index" 
-           class="item-row" 
-           [class.active-selected]="activeWordIndex === (i + 1)"
-           (click)="onItemClick(i + 1)">
-        <span class="item-num">{{ i + 1 }}</span>
-        <div class="item-content">
-          <div class="item-title" [class.long-title]="item.text.length > 24">
-            {{ item.text }}
-            <span *ngIf="item.year" class="item-year">({{ item.year }})</span>
-          </div>
-          <div *ngIf="item.theme" class="item-category-wrapper" [class.is-visible]="showDetails">
-            <div class="item-category-inner">
-              <span class="item-category">{{ item.theme }}</span>
+      @for (item of card().easy; track $index; let i = $index) {
+        <div 
+          class="item-row" 
+          [class.active-selected]="activeWordIndex() === (i + 1)"
+          (click)="onItemClick(i + 1)">
+          <span class="item-num">{{ i + 1 }}</span>
+          <div class="item-content">
+            <div class="item-title" [class.long-title]="item.text.length > 24">
+              {{ item.text }}
+              @if (item.year) {
+                <span class="item-year">({{ item.year }})</span>
+              }
             </div>
+            @if (item.theme) {
+              <div class="item-category-wrapper" [class.is-visible]="showDetails()">
+                <div class="item-category-inner">
+                  <span class="item-category">{{ item.theme }}</span>
+                </div>
+              </div>
+            }
           </div>
         </div>
-      </div>
+      }
     </div>
 
     <!-- 🔴 2. SECTION MOYEN (4 à 6) -->
@@ -44,23 +50,29 @@
         </svg>
       </div>
 
-      <div *ngFor="let item of card.medium; let i = index" 
-           class="item-row" 
-           [class.active-selected]="activeWordIndex === (i + 4)"
-           (click)="onItemClick(i + 4)">
-        <span class="item-num">{{ i + 4 }}</span>
-        <div class="item-content">
-          <div class="item-title" [class.long-title]="item.text.length > 24">
-            {{ item.text }}
-            <span *ngIf="item.year" class="item-year">({{ item.year }})</span>
-          </div>
-          <div *ngIf="item.theme" class="item-category-wrapper" [class.is-visible]="showDetails">
-            <div class="item-category-inner">
-              <span class="item-category">{{ item.theme }}</span>
+      @for (item of card().medium; track $index; let i = $index) {
+        <div 
+          class="item-row" 
+          [class.active-selected]="activeWordIndex() === (i + 4)"
+          (click)="onItemClick(i + 4)">
+          <span class="item-num">{{ i + 4 }}</span>
+          <div class="item-content">
+            <div class="item-title" [class.long-title]="item.text.length > 24">
+              {{ item.text }}
+              @if (item.year) {
+                <span class="item-year">({{ item.year }})</span>
+              }
             </div>
+            @if (item.theme) {
+              <div class="item-category-wrapper" [class.is-visible]="showDetails()">
+                <div class="item-category-inner">
+                  <span class="item-category">{{ item.theme }}</span>
+                </div>
+              </div>
+            }
           </div>
         </div>
-      </div>
+      }
     </div>
 
     <!-- 🔘 3. SECTION DIFFICILE (7 à 9) -->
@@ -75,23 +87,29 @@
         </svg>
       </div>
 
-      <div *ngFor="let item of card.hard; let i = index" 
-           class="item-row" 
-           [class.active-selected]="activeWordIndex === (i + 7)"
-           (click)="onItemClick(i + 7)">
-        <span class="item-num">{{ i + 7 }}</span>
-        <div class="item-content">
-          <div class="item-title" [class.long-title]="item.text.length > 24">
-            {{ item.text }}
-            <span *ngIf="item.year" class="item-year">({{ item.year }})</span>
-          </div>
-          <div *ngIf="item.theme" class="item-category-wrapper" [class.is-visible]="showDetails">
-            <div class="item-category-inner">
-              <span class="item-category">{{ item.theme }}</span>
+      @for (item of card().hard; track $index; let i = $index) {
+        <div 
+          class="item-row" 
+          [class.active-selected]="activeWordIndex() === (i + 7)"
+          (click)="onItemClick(i + 7)">
+          <span class="item-num">{{ i + 7 }}</span>
+          <div class="item-content">
+            <div class="item-title" [class.long-title]="item.text.length > 24">
+              {{ item.text }}
+              @if (item.year) {
+                <span class="item-year">({{ item.year }})</span>
+              }
             </div>
+            @if (item.theme) {
+              <div class="item-category-wrapper" [class.is-visible]="showDetails()">
+                <div class="item-category-inner">
+                  <span class="item-category">{{ item.theme }}</span>
+                </div>
+              </div>
+            }
           </div>
         </div>
-      </div>
+      }
     </div>
 
   </div>

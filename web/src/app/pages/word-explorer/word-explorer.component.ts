@@ -1,22 +1,17 @@
-import { Component, inject, signal, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
 import { WordStorageService } from '../../services/word-storage.service';
-import { CardGeneratorService } from '../../services/card-generator.service';
-import { WordItem } from '../../models/concept.models';
 
 @Component({
   selector: 'app-word-explorer',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule, DecimalPipe],
   templateUrl: './word-explorer.component.html',
-  styleUrls: ['./word-explorer.component.scss']
+  styleUrls: ['./word-explorer.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class WordExplorerComponent {
   readonly storage = inject(WordStorageService);
-  private readonly generator = inject(CardGeneratorService);
-  private readonly router = inject(Router);
 
   searchTerm = signal<string>('');
   selectedDifficulty = signal<number | null>(null); // null = all, 0 = easy, 1 = med, 2 = hard
