@@ -35,9 +35,9 @@
     "@angular/cli": "^19.1.8",
     "@angular/compiler-cli": "^19.1.0",
     "eslint": "^10.8.1",
-    "jsdom": "^27.0.1",
+    "jsdom": "^30.0.1",
     "typescript": "~5.7.2",
     "typescript-eslint": "^8.67.0",
-    "vitest": "^3.2.7"
+    "vitest": "^4.1.10"
   }
 }
