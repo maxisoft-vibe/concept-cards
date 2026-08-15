@@ -55,27 +55,22 @@ export class WordStorageService {
     this._loadingError.set(null);
 
     try {
-      // 1. Try loading from IndexedDB first for instant startup (0ms)
+      // 1. Try loading from IndexedDB first for instant startup (0ms, 0 byte network)
       const cached = await this.readFromIndexedDB();
       if (cached && cached.words && cached.words.length > 0 && (cached.version || 0) >= MIN_EXPECTED_DATASET_VERSION) {
         this._dataset.set(cached);
         this._loadSource.set('indexedDB');
         this._isLoading.set(false);
-        console.log(`[WordStorage] Loaded ${cached.words.length} words instantly from IndexedDB cache (v${cached.version}).`);
-
-        // Background check for updates (Stale-While-Revalidate)
-        this.fetchAndCacheDataset(true).catch(err => {
-          console.warn('[WordStorage] Background revalidation notice:', err);
-        });
+        console.log(`[WordStorage] Loaded ${cached.words.length} words instantly from IndexedDB cache (v${cached.version}) — 0 byte network transfer.`);
         return;
       }
 
-      // 2. Fetch fresh dataset from static JSON if cache is missing or obsolete
-      await this.fetchAndCacheDataset(false);
+      // 2. Fetch fresh dataset from static JSON only if cache is missing or obsolete
+      await this.fetchAndCacheDataset();
     } catch (err) {
       console.warn('[WordStorage] IndexedDB read notice, falling back to direct network fetch:', err);
       try {
-        await this.fetchAndCacheDataset(false);
+        await this.fetchAndCacheDataset();
       } catch (fetchErr: any) {
         console.error('[WordStorage] Critical fetch error:', fetchErr);
         this._loadingError.set(fetchErr?.message || 'Erreur lors du chargement des données.');
@@ -85,15 +80,13 @@ export class WordStorageService {
     }
   }
 
-  private async fetchAndCacheDataset(isBackground = false): Promise<void> {
+  private async fetchAndCacheDataset(): Promise<void> {
     // Resolve URL safely according to document baseURI
     const base = (typeof document !== 'undefined' && document.baseURI) ? document.baseURI : (typeof window !== 'undefined' ? window.location.href : '/');
-    const jsonUrl = new URL(`data/words.json?v=${MIN_EXPECTED_DATASET_VERSION}`, base).href;
+    const jsonUrl = new URL(`data/words.json`, base).href;
 
-    if (!isBackground) {
-      console.log(`[WordStorage] Fetching dataset from: ${jsonUrl}`);
-    }
-    const res = await fetch(jsonUrl, { cache: 'no-cache' });
+    console.log(`[WordStorage] Downloading dataset (v${MIN_EXPECTED_DATASET_VERSION}) from: ${jsonUrl}`);
+    const res = await fetch(jsonUrl, { cache: 'default' });
     if (!res.ok) {
       throw new Error(`HTTP ${res.status}: Impossible de récupérer ${jsonUrl}`);
     }
@@ -103,20 +96,15 @@ export class WordStorageService {
       throw new Error('Le fichier de dictionnaire est vide ou invalide.');
     }
 
-    const currentData = this._dataset();
-    const hasChanged = !currentData || currentData.count !== data.count || currentData.version !== data.version;
+    this._dataset.set(data);
+    this._loadSource.set('network');
+    this._isLoading.set(false);
+    console.log(`[WordStorage] Successfully loaded ${data.words.length} words (v${data.version}).`);
 
-    if (hasChanged || !isBackground) {
-      this._dataset.set(data);
-      this._loadSource.set('network');
-      this._isLoading.set(false);
-      console.log(`[WordStorage] Successfully loaded ${data.words.length} words (v${data.version}).`);
-
-      // Save to IndexedDB asynchronously in the background
-      this.writeToIndexedDB(data).catch(err => {
-        console.warn('[WordStorage] IndexedDB write notice:', err);
-      });
-    }
+    // Save to IndexedDB asynchronously for all future offline / 0-data loads
+    this.writeToIndexedDB(data).catch(err => {
+      console.warn('[WordStorage] IndexedDB write notice:', err);
+    });
   }
 
   private openDB(): Promise<IDBDatabase> {

@@ -54,39 +54,14 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Data requests (words.json): Network-first with cache fallback
-  if (req.url.includes('words.json')) {
-    event.respondWith(
-      fetch(req).then((networkResponse) => {
-        if (networkResponse && networkResponse.status === 200) {
-          const resClone = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(req, resClone));
-        }
-        return networkResponse;
-      }).catch(async () => {
-        const cache = await caches.open(CACHE_NAME);
-        const match = await cache.match(req);
-        if (match) return match;
-        return (await cache.match('./data/words.json')) || Response.error();
-      })
-    );
-    return;
-  }
-
-  // All other assets (JS, CSS, Images)
+  // Precached assets (JS, CSS, JSON, Images)
   event.respondWith(
     caches.match(req).then((cachedResponse) => {
       if (cachedResponse) {
-        // Fetch update in background
-        fetch(req).then((networkResponse) => {
-          if (networkResponse && networkResponse.status === 200) {
-            caches.open(CACHE_NAME).then((cache) => cache.put(req, networkResponse));
-          }
-        }).catch(() => {});
         return cachedResponse;
       }
 
-      // If not in cache, fetch from network
+      // If not in cache, fetch from network and store in cache
       return fetch(req).then((networkResponse) => {
         if (networkResponse && networkResponse.status === 200) {
           const resClone = networkResponse.clone();
