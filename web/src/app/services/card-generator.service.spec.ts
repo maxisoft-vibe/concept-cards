@@ -81,10 +81,14 @@ describe('CardGeneratorService', () => {
     const cardA = service.generateCard(99999);
     const cardB = service.generateCard(99999);
 
-    expect(cardA).toEqual(cardB);
-    expect(cardA!.easy.map(e => e.text)).toEqual(cardB!.easy.map(e => e.text));
-    expect(cardA!.medium.map(m => m.text)).toEqual(cardB!.medium.map(m => m.text));
-    expect(cardA!.hard.map(h => h.text)).toEqual(cardB!.hard.map(h => h.text));
+    expect(cardA).not.toBeNull();
+    expect(cardB).not.toBeNull();
+    expect(cardA!.id).toBe(cardB!.id);
+    expect(cardA!.seed).toBe(cardB!.seed);
+    expect(cardA!.easy).toEqual(cardB!.easy);
+    expect(cardA!.medium).toEqual(cardB!.medium);
+    expect(cardA!.hard).toEqual(cardB!.hard);
+    expect(cardA!.themesSummary).toEqual(cardB!.themesSummary);
   });
 
   it('should retrieve a deterministic card by its base36 ID', () => {
@@ -93,8 +97,14 @@ describe('CardGeneratorService', () => {
     const cardFromSeed = service.generateCard(seed);
     const cardFromId = service.getCardById(base36Id);
 
-    expect(cardFromId).toEqual(cardFromSeed);
+    expect(cardFromId).not.toBeNull();
+    expect(cardFromSeed).not.toBeNull();
     expect(cardFromId?.id).toBe(base36Id);
+    expect(cardFromId?.seed).toBe(seed);
+    expect(cardFromId?.easy).toEqual(cardFromSeed?.easy);
+    expect(cardFromId?.medium).toEqual(cardFromSeed?.medium);
+    expect(cardFromId?.hard).toEqual(cardFromSeed?.hard);
+    expect(cardFromId?.themesSummary).toEqual(cardFromSeed?.themesSummary);
   });
 
   it('should return null if invalid ID string is provided', () => {
