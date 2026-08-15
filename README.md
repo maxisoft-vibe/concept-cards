@@ -7,7 +7,7 @@
 
 ## ✨ Fonctionnalités
 
-- 🎲 **Génération infinie de cartes (8 695 mots)** :
+- 🎲 **Génération infinie de cartes (6 175 mots soigneusement curatés)** :
   - Respect scrupuleux de la répartition officielle : **3 Facile** (🔵 1 à 3), **3 Moyen** (🔴 4 à 6) et **3 Difficile** (🔘 7 à 9).
   - Algorithme de sélection évitant la redondance thématique sur une même carte.
 - 🔗 **Graines déterministes (*Seeds*) & Partage** :
