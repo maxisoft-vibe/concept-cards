@@ -57,11 +57,13 @@ res/words_generated.json*
 res/words_compact.json*
 res/words.json*
 res/test_*.json
-res/words/staging_gemini/
+res/words/*
+!res/words/deleted_words.txt
 web/public/data/words.json
 bfg.jar
 *.bfg-report/
 .bfg-report/
+..bfg-report/
 scratch/
 
 # --- OS Specific Files ---
