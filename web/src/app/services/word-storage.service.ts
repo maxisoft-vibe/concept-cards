@@ -2,9 +2,10 @@ import { Injectable, signal, computed } from '@angular/core';
 import { WordsDataset } from '../models/concept.models';
 
 const DB_NAME = 'ConceptCardDB';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 const STORE_NAME = 'dataset_store';
-const DATASET_KEY = 'words_dataset_v1';
+const DATASET_KEY = 'words_dataset_v2';
+const MIN_EXPECTED_DATASET_VERSION = 2;
 
 @Injectable({
   providedIn: 'root'
@@ -56,20 +57,25 @@ export class WordStorageService {
     try {
       // 1. Try loading from IndexedDB first for instant startup (0ms)
       const cached = await this.readFromIndexedDB();
-      if (cached && cached.words && cached.words.length > 0) {
+      if (cached && cached.words && cached.words.length > 0 && (cached.version || 0) >= MIN_EXPECTED_DATASET_VERSION) {
         this._dataset.set(cached);
         this._loadSource.set('indexedDB');
         this._isLoading.set(false);
-        console.log(`[WordStorage] Loaded ${cached.words.length} words instantly from IndexedDB cache.`);
+        console.log(`[WordStorage] Loaded ${cached.words.length} words instantly from IndexedDB cache (v${cached.version}).`);
+
+        // Background check for updates (Stale-While-Revalidate)
+        this.fetchAndCacheDataset(true).catch(err => {
+          console.warn('[WordStorage] Background revalidation notice:', err);
+        });
         return;
       }
 
-      // 2. Fetch from static JSON
-      await this.fetchAndCacheDataset();
+      // 2. Fetch fresh dataset from static JSON if cache is missing or obsolete
+      await this.fetchAndCacheDataset(false);
     } catch (err) {
       console.warn('[WordStorage] IndexedDB read notice, falling back to direct network fetch:', err);
       try {
-        await this.fetchAndCacheDataset();
+        await this.fetchAndCacheDataset(false);
       } catch (fetchErr: any) {
         console.error('[WordStorage] Critical fetch error:', fetchErr);
         this._loadingError.set(fetchErr?.message || 'Erreur lors du chargement des données.');
@@ -79,13 +85,15 @@ export class WordStorageService {
     }
   }
 
-  private async fetchAndCacheDataset(): Promise<void> {
+  private async fetchAndCacheDataset(isBackground = false): Promise<void> {
     // Resolve URL safely according to document baseURI
     const base = (typeof document !== 'undefined' && document.baseURI) ? document.baseURI : (typeof window !== 'undefined' ? window.location.href : '/');
-    const jsonUrl = new URL('data/words.json', base).href;
+    const jsonUrl = new URL(`data/words.json?v=${MIN_EXPECTED_DATASET_VERSION}`, base).href;
 
-    console.log(`[WordStorage] Fetching dataset from: ${jsonUrl}`);
-    const res = await fetch(jsonUrl, { cache: 'default' });
+    if (!isBackground) {
+      console.log(`[WordStorage] Fetching dataset from: ${jsonUrl}`);
+    }
+    const res = await fetch(jsonUrl, { cache: 'no-cache' });
     if (!res.ok) {
       throw new Error(`HTTP ${res.status}: Impossible de récupérer ${jsonUrl}`);
     }
@@ -95,15 +103,20 @@ export class WordStorageService {
       throw new Error('Le fichier de dictionnaire est vide ou invalide.');
     }
 
-    this._dataset.set(data);
-    this._loadSource.set('network');
-    this._isLoading.set(false);
-    console.log(`[WordStorage] Successfully loaded ${data.words.length} words via network.`);
+    const currentData = this._dataset();
+    const hasChanged = !currentData || currentData.count !== data.count || currentData.version !== data.version;
 
-    // Save to IndexedDB asynchronously in the background
-    this.writeToIndexedDB(data).catch(err => {
-      console.warn('[WordStorage] IndexedDB write notice (app will continue smoothly in memory):', err);
-    });
+    if (hasChanged || !isBackground) {
+      this._dataset.set(data);
+      this._loadSource.set('network');
+      this._isLoading.set(false);
+      console.log(`[WordStorage] Successfully loaded ${data.words.length} words (v${data.version}).`);
+
+      // Save to IndexedDB asynchronously in the background
+      this.writeToIndexedDB(data).catch(err => {
+        console.warn('[WordStorage] IndexedDB write notice:', err);
+      });
+    }
   }
 
   private openDB(): Promise<IDBDatabase> {
@@ -115,10 +128,20 @@ export class WordStorageService {
 
       const request = indexedDB.open(DB_NAME, DB_VERSION);
 
-      request.onupgradeneeded = () => {
+      request.onupgradeneeded = (event) => {
         const db = request.result;
         if (!db.objectStoreNames.contains(STORE_NAME)) {
           db.createObjectStore(STORE_NAME);
+        }
+        // Purge legacy v1 key if upgrading
+        try {
+          const tx = (event.target as IDBOpenDBRequest).transaction;
+          if (tx) {
+            const store = tx.objectStore(STORE_NAME);
+            store.delete('words_dataset_v1');
+          }
+        } catch {
+          // ignore
         }
       };
 

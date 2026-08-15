@@ -1,4 +1,4 @@
-const CACHE_NAME = 'concept-pwa-v2';
+const CACHE_NAME = 'concept-pwa-v3';
 
 // Essential assets to cache on install
 const CORE_ASSETS = [
@@ -26,6 +26,7 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         keys.map((key) => {
           if (key !== CACHE_NAME) {
+            console.log('[SW] Purging outdated cache:', key);
             return caches.delete(key);
           }
         })
@@ -53,7 +54,26 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // All other assets (JS, CSS, JSON, Images)
+  // Data requests (words.json): Network-first with cache fallback
+  if (req.url.includes('words.json')) {
+    event.respondWith(
+      fetch(req).then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200) {
+          const resClone = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(req, resClone));
+        }
+        return networkResponse;
+      }).catch(async () => {
+        const cache = await caches.open(CACHE_NAME);
+        const match = await cache.match(req);
+        if (match) return match;
+        return (await cache.match('./data/words.json')) || Response.error();
+      })
+    );
+    return;
+  }
+
+  // All other assets (JS, CSS, Images)
   event.respondWith(
     caches.match(req).then((cachedResponse) => {
       if (cachedResponse) {

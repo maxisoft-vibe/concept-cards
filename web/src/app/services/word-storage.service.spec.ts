@@ -7,7 +7,7 @@ describe('WordStorageService', () => {
   let service: WordStorageService;
 
   const mockData: WordsDataset = {
-    version: 1,
+    version: 2,
     count: 3,
     themes: {
       '0': 'Animaux',

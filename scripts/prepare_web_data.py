@@ -55,7 +55,7 @@ def prepare_compact_data():
         compact_words.append(item)
     
     compact_payload = {
-        "version": 1,
+        "version": 2,
         "count": len(compact_words),
         "themes": themes,
         "words": compact_words
