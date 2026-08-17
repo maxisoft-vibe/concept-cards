@@ -58,6 +58,7 @@ jobs:
         run: npm run build:gh-pages
 
       - name: Attest Build Provenance
+        continue-on-error: true
         uses: actions/attest-build-provenance@v2
         with:
           subject-path: 'web/dist/web/browser/**'

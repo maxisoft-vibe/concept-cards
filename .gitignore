@@ -5,6 +5,8 @@
 *.env.local
 secrets/
 secrets.json
+*.keystore
+*.jks
 
 # --- Python & Bytecode ---
 __pycache__/
