@@ -93,4 +93,32 @@ describe('UpdateService', () => {
     service.dismiss();
     expect(service.updateAvailable()).toBe(false);
   });
+
+  it('should rate-limit requests to at most 1 per minute unless force=true', async () => {
+    const fetchSpy = vi.fn().mockImplementation(() =>
+      Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({
+          appVersion: CURRENT_BUILD_INFO.appVersion,
+          buildHash: CURRENT_BUILD_INFO.buildHash,
+          builtAt: Date.now(),
+          datasetVersion: CURRENT_BUILD_INFO.datasetVersion,
+          wordsCount: CURRENT_BUILD_INFO.wordsCount
+        })
+      })
+    );
+    globalThis.fetch = fetchSpy;
+
+    // First call executes
+    await service.checkForUpdates(true);
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+
+    // Second immediate call without force should be rate-limited (0 network request)
+    await service.checkForUpdates(false);
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+
+    // Third call with force=true bypasses rate limiter
+    await service.checkForUpdates(true);
+    expect(fetchSpy).toHaveBeenCalledTimes(2);
+  });
 });

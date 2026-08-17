@@ -5,6 +5,9 @@ import { CURRENT_BUILD_INFO, type AppVersionInfo } from '../version';
 export { CURRENT_BUILD_INFO };
 export type { AppVersionInfo };
 
+// Max 1 remote version check per minute (global rate limiter / debounce)
+export const MIN_UPDATE_CHECK_INTERVAL_MS = 60 * 1000;
+
 @Injectable({
   providedIn: 'root'
 })
@@ -19,6 +22,7 @@ export class UpdateService {
 
   private intervalId: any = null;
   private waitingWorker: ServiceWorker | null = null;
+  private lastCheckTimestamp = 0;
 
   constructor() {
     if (this.isBrowser) {
@@ -77,17 +81,24 @@ export class UpdateService {
   }
 
   /**
-   * Silently checks app-version.json (~100 bytes) over network
+   * Silently checks app-version.json (~100 bytes) over network.
+   * Throttled to at most 1 check per minute unless force=true.
    */
-  async checkForUpdates(): Promise<boolean> {
+  async checkForUpdates(force = false): Promise<boolean> {
     if (!this.isBrowser || this.isChecking()) {
       return false;
     }
 
+    const now = Date.now();
+    if (!force && (now - this.lastCheckTimestamp < MIN_UPDATE_CHECK_INTERVAL_MS)) {
+      return false;
+    }
+
     this.isChecking.set(true);
+    this.lastCheckTimestamp = now;
     try {
       const base = (typeof document !== 'undefined' && document.baseURI) ? document.baseURI : window.location.href;
-      const url = new URL(`app-version.json?t=${Date.now()}`, base).href;
+      const url = new URL(`app-version.json?t=${now}`, base).href;
 
       const res = await fetch(url, { cache: 'no-cache' });
       if (!res.ok) {
