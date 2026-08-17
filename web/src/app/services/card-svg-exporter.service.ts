@@ -1,5 +1,12 @@
 import { Injectable } from '@angular/core';
+import { Capacitor, registerPlugin } from '@capacitor/core';
 import { ConceptCard } from '../models/concept.models';
+
+export interface SaveFilePluginInterface {
+  saveFile(options: { fileName: string; content: string; mimeType: string }): Promise<{ success: boolean; uri?: string; cancelled?: boolean }>;
+}
+
+const SaveFile = registerPlugin<SaveFilePluginInterface>('SaveFile');
 
 function escapeXml(unsafe: string): string {
   return unsafe.replace(/[<>&'"]/g, (c) => {
@@ -162,7 +169,57 @@ export class CardSvgExporterService {
   }
 
   /**
-   * Triggers browser download of the SVG file
+   * Saves the card SVG directly ("Enregistrer sous" / Native Android Storage Access Framework picker)
+   */
+  async saveCardSvg(card: ConceptCard): Promise<{ success: boolean; location: string }> {
+    const svgString = this.generateCardSvg(card);
+    const fileName = `concept-carte-${card.id}.svg`;
+
+    // 1. Native Android Storage Access Framework (SAF) "Enregistrer sous..." document/folder picker
+    if (Capacitor.isNativePlatform()) {
+      try {
+        const res = await SaveFile.saveFile({
+          fileName,
+          content: svgString,
+          mimeType: 'image/svg+xml'
+        });
+        if (res && res.success) {
+          return { success: true, location: fileName };
+        }
+        return { success: false, location: '' };
+      } catch (err) {
+        console.warn('[SvgExporter] Native SaveFile plugin notice:', err);
+      }
+    }
+
+    // 2. Modern Web File System Access API ("Enregistrer sous..." native system dialog on Desktop Web)
+    if (typeof window !== 'undefined' && 'showSaveFilePicker' in window) {
+      try {
+        const handle = await (window as any).showSaveFilePicker({
+          suggestedName: fileName,
+          types: [{
+            description: 'Image Vectorielle SVG',
+            accept: { 'image/svg+xml': ['.svg'] }
+          }]
+        });
+        const writable = await handle.createWritable();
+        await writable.write(svgString);
+        await writable.close();
+        return { success: true, location: handle.name || fileName };
+      } catch (err: any) {
+        if (err?.name === 'AbortError') {
+          return { success: false, location: '' };
+        }
+      }
+    }
+
+    // 3. Fallback browser blob download
+    this.downloadCardAsSvg(card);
+    return { success: true, location: 'Téléchargements' };
+  }
+
+  /**
+   * Triggers browser download of the SVG file via standard Blob link
    */
   downloadCardAsSvg(card: ConceptCard): void {
     const svgString = this.generateCardSvg(card);

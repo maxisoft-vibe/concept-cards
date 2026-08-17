@@ -9,6 +9,7 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  attestations: write
 
 concurrency:
   group: "pages"
@@ -55,6 +56,11 @@ jobs:
       - name: Build Angular app
         working-directory: ./web
         run: npm run build:gh-pages
+
+      - name: Attest Build Provenance
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: 'web/dist/web/browser/**'
 
       - name: Setup Pages
         uses: actions/configure-pages@v6

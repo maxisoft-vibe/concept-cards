@@ -121,4 +121,16 @@ describe('UpdateService', () => {
     await service.checkForUpdates(true);
     expect(fetchSpy).toHaveBeenCalledTimes(2);
   });
+
+  it('should immediately return false without fetching if running on native platform', async () => {
+    const fetchSpy = vi.fn();
+    globalThis.fetch = fetchSpy;
+
+    // Mutate readonly property for test verification
+    (service as any).isNative = true;
+
+    const hasUpdate = await service.checkForUpdates(true);
+    expect(hasUpdate).toBe(false);
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
 });

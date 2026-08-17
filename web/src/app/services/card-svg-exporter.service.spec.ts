@@ -83,4 +83,11 @@ describe('CardSvgExporterService', () => {
     expect(removeChildSpy).toHaveBeenCalled();
     expect(globalThis.URL.revokeObjectURL).toHaveBeenCalledWith(mockUrl);
   });
+
+  it('should call downloadCardAsSvg from saveCardSvg when File System Access API is not available', async () => {
+    const downloadSpy = vi.spyOn(service, 'downloadCardAsSvg').mockImplementation(() => {});
+    const result = await service.saveCardSvg(mockCard);
+    expect(result.success).toBe(true);
+    expect(downloadSpy).toHaveBeenCalledWith(mockCard);
+  });
 });

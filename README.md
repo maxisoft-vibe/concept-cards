@@ -50,6 +50,7 @@ Consultez les guides techniques détaillés dans le dossier [`docs/`](docs/) :
 - [**03. Angular 22 & Modernization Journey**](docs/journey/03_ANGULAR22_ZONELESS_CI_AND_TESTING_JOURNEY.md) : Migration Angular 22, Zoneless, Vitest 4, BFG et CI/CD.
 - [**04. Dataset Curation & Merge Journey**](docs/journey/04_DATASET_CURATION_AND_MERGE_JOURNEY.md) : Nettoyage, découpage en 41 chunks, réhabilitation de 160 concepts et consolidation à 6 175 mots.
 - [**05. PWA Offline & Update System Journey**](docs/journey/05_PWA_OFFLINE_PERF_AND_UPDATE_SYSTEM_JOURNEY.md) : Démarrage 0 ms hors-ligne, Navigation Preload, rate limiting et détection d'update.
+- [**06. Android Offline App Journey**](docs/journey/06_ANDROID_CAPACITOR_OFFLINE_APP_JOURNEY.md) : Application Android native Capacitor 100% hors-ligne (4.53 MB, 0 permission).
 
 ---
 
@@ -71,12 +72,18 @@ npm run lint
 
 # Lancer le serveur de développement
 npm start
+
+# Synchroniser l'application Android native
+npm run cap:sync
 ```
 
 Rendez-vous sur `http://localhost:4200/`.
 
 ---
 
-## 📦 Déploiement GitHub Pages
+## 📦 Déploiement GitHub Pages & Sécurité de la Chaîne d'Approvisionnement (SLSA)
 
 Le déploiement est entièrement automatisé à chaque `git push` sur la branche `main` grâce au workflow GitHub Actions [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) (avec exécution préalable du linter, du vérificateur de types et des tests Vitest sous Node.js 24 LTS).
+
+Chaque build de production génère une **attestation cryptographique de provenance de build** conforme SLSA via `actions/attest-build-provenance` et Sigstore, permettant de vérifier publiquement l'authenticité et l'intégrité des artefacts déployés (`gh attestation verify web/dist/web/browser/... --owner maxisoft-vibe`).
+

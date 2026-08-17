@@ -13,7 +13,10 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "eslint .",
-    "type-check": "tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.spec.json"
+    "type-check": "tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.spec.json",
+    "cap": "cap",
+    "cap:sync": "npm run build:gh-pages && cap sync android",
+    "cap:open": "cap open android"
   },
   "private": true,
   "dependencies": {
@@ -25,6 +28,10 @@
     "@angular/platform-browser": "^22.1.2",
     "@angular/platform-browser-dynamic": "^22.1.2",
     "@angular/router": "^22.1.2",
+    "@capacitor/android": "^8.5.0",
+    "@capacitor/core": "^8.5.0",
+    "@capacitor/preferences": "^8.0.1",
+    "@capacitor/share": "^8.0.1",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.16.2"
@@ -37,6 +44,7 @@
     "@angular-eslint/template-parser": "^22.1.0",
     "@angular/cli": "^22.1.4",
     "@angular/compiler-cli": "^22.1.2",
+    "@capacitor/cli": "^8.5.0",
     "eslint": "^10.8.1",
     "jsdom": "^30.0.1",
     "typescript": "~6.0.3",

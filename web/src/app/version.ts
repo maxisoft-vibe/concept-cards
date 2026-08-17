@@ -9,8 +9,8 @@ export interface AppVersionInfo {
 
 export const CURRENT_BUILD_INFO: AppVersionInfo = {
   "appVersion": "1.2.0",
-  "buildHash": "2136387",
-  "builtAt": 1786985175139,
+  "buildHash": "e15e8a3",
+  "builtAt": 1786989652143,
   "datasetVersion": 2,
   "wordsCount": 6175
 };

@@ -1,5 +1,6 @@
 import { Injectable, signal, inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
+import { Capacitor } from '@capacitor/core';
 import { CURRENT_BUILD_INFO, type AppVersionInfo } from '../version';
 
 export { CURRENT_BUILD_INFO };
@@ -15,6 +16,7 @@ export class UpdateService {
   private readonly platformId = inject(PLATFORM_ID);
 
   readonly isBrowser = isPlatformBrowser(this.platformId);
+  readonly isNative = Capacitor.isNativePlatform();
   readonly updateAvailable = signal<boolean>(false);
   readonly updateReason = signal<'code' | 'dataset' | 'both'>('code');
   readonly remoteVersion = signal<AppVersionInfo | null>(null);
@@ -25,7 +27,8 @@ export class UpdateService {
   private lastCheckTimestamp = 0;
 
   constructor() {
-    if (this.isBrowser) {
+    // Only enable web polling & Service Worker updates on web browsers (not in offline native app)
+    if (this.isBrowser && !this.isNative) {
       this.initUpdateListeners();
     }
   }
@@ -85,7 +88,7 @@ export class UpdateService {
    * Throttled to at most 1 check per minute unless force=true.
    */
   async checkForUpdates(force = false): Promise<boolean> {
-    if (!this.isBrowser || this.isChecking()) {
+    if (!this.isBrowser || this.isNative || this.isChecking()) {
       return false;
     }
 

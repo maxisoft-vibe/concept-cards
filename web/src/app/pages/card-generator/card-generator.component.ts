@@ -1,4 +1,6 @@
 import { Component, inject, signal, HostListener, effect, ChangeDetectionStrategy } from '@angular/core';
+import { Capacitor } from '@capacitor/core';
+import { Share } from '@capacitor/share';
 import { CardHistoryService } from '../../services/card-history.service';
 import { WordStorageService } from '../../services/word-storage.service';
 import { CardSvgExporterService } from '../../services/card-svg-exporter.service';
@@ -15,6 +17,8 @@ export class CardGeneratorComponent {
   readonly history = inject(CardHistoryService);
   readonly storage = inject(WordStorageService);
   readonly svgExporter = inject(CardSvgExporterService);
+
+  readonly isNative = Capacitor.isNativePlatform();
 
   showThemes = signal<boolean>(false);
   selectedWordIndex = signal<number | null>(null);
@@ -163,33 +167,78 @@ export class CardGeneratorComponent {
     return `https://duckduckgo.com/?${params.toString()}`;
   }
 
-  downloadSvg(): void {
+  async downloadSvg(): Promise<void> {
     const card = this.history.currentCard();
     if (!card) return;
-    this.svgExporter.downloadCardAsSvg(card);
-    this.showToast('Téléchargement du SVG lancé !');
+    const result = await this.svgExporter.saveCardSvg(card);
+    if (result.success) {
+      this.showToast(`SVG enregistré (${result.location}) !`);
+    }
   }
 
   async copyShareLink(): Promise<void> {
     const card = this.history.currentCard();
     if (!card) return;
 
-    const url = window.location.href;
+    const publicUrl = `https://maxisoft-vibe.github.io/concept-cards/#${card.id}`;
+
+    // Direct clipboard copy
     try {
-      if (navigator.clipboard) {
-        await navigator.clipboard.writeText(url);
+      if (typeof navigator !== 'undefined' && navigator.clipboard) {
+        await navigator.clipboard.writeText(publicUrl);
       } else {
         const textArea = document.createElement('textarea');
-        textArea.value = url;
+        textArea.value = publicUrl;
         document.body.appendChild(textArea);
         textArea.select();
         document.execCommand('copy');
         document.body.removeChild(textArea);
       }
-      this.showToast('Lien de la carte copié !');
+      this.showToast('Lien copié dans le presse-papier !');
     } catch {
-      this.showToast('Lien : ' + url);
+      this.showToast('Lien : ' + publicUrl);
     }
+  }
+
+  async shareCard(): Promise<void> {
+    const card = this.history.currentCard();
+    if (!card) return;
+
+    const publicUrl = `https://maxisoft-vibe.github.io/concept-cards/#${card.id}`;
+
+    // 1. Native Capacitor platform (Android / iOS native share sheet)
+    if (Capacitor.isNativePlatform()) {
+      try {
+        await Share.share({
+          title: `Carte Concept #${card.id}`,
+          text: `Découvre cette carte Concept (#${card.id}) !`,
+          url: publicUrl,
+          dialogTitle: 'Partager la carte Concept'
+        });
+        return;
+      } catch (err: any) {
+        if (err?.name === 'AbortError' || err?.message?.includes('canceled') || err?.message?.includes('dismissed')) {
+          return;
+        }
+      }
+    }
+
+    // 2. Web Share API (Mobile web browsers)
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      try {
+        await navigator.share({
+          title: `Carte Concept #${card.id}`,
+          text: `Découvre cette carte Concept (#${card.id}) !`,
+          url: publicUrl
+        });
+        return;
+      } catch (err: any) {
+        if (err?.name === 'AbortError') return;
+      }
+    }
+
+    // Fallback: copy link if share is unavailable
+    await this.copyShareLink();
   }
 
   private showToast(msg: string): void {

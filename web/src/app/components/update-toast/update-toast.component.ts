@@ -13,7 +13,7 @@ import { UpdateService } from '../../services/update.service';
 export class UpdateToastComponent {
   readonly updateService = inject(UpdateService);
 
-  readonly isVisible = computed(() => this.updateService.updateAvailable());
+  readonly isVisible = computed(() => !this.updateService.isNative && this.updateService.updateAvailable());
 
   readonly message = computed(() => {
     const reason = this.updateService.updateReason();

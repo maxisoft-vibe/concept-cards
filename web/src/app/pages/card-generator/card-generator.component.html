@@ -115,12 +115,19 @@
 
       <!-- Secondary Utilities Toolbar -->
       <div class="secondary-toolbar">
-        <button class="btn btn-ghost" (click)="copyShareLink()" title="Partager cette carte">
+        <button class="btn btn-ghost" (click)="copyShareLink()" title="Copier le lien direct vers cette carte">
           <span class="btn-icon">📋</span>
           <span>Lien</span>
         </button>
 
-        <button class="btn btn-ghost" (click)="downloadSvg()" title="Télécharger la carte au format vectoriel SVG (imprimable)">
+        @if (isNative) {
+          <button class="btn btn-ghost" (click)="shareCard()" title="Partager cette carte">
+            <span class="btn-icon">🔗</span>
+            <span>Partager</span>
+          </button>
+        }
+
+        <button class="btn btn-ghost" (click)="downloadSvg()" title="Enregistrer la carte au format vectoriel SVG (imprimable)">
           <span class="btn-icon">📥</span>
           <span>SVG</span>
         </button>

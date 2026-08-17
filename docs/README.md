@@ -34,11 +34,17 @@ Welcome to the documentation for the **Concept Card Extender** project.
    - Global 1-minute rate limiting (cooldown / debounce) protecting mobile data.
    - Non-intrusive floating [`UpdateToastComponent`](../web/src/app/components/update-toast/) with smooth controller change activation.
 
-6. [**JSON Schemas**](schemas/)
+6. [**06. Android Offline Standalone Application (Capacitor) Journey**](journey/06_ANDROID_CAPACITOR_OFFLINE_APP_JOURNEY.md)
+   - Packaging natif Android ultra-léger (4.53 MB APK, universal DEX bytecode).
+   - Architecture 0 permission (`android.permission.INTERNET` supprimée).
+   - Détection dynamique de plateforme (`Capacitor.isNativePlatform()`), désactivation du polling web superflu.
+   - Embarquement local du dictionnaire (6 175 mots) et intégration du Web Share API pour le partage et l'export SVG.
+
+7. [**JSON Schemas**](schemas/)
    - [`words_generated.schema.json`](schemas/words_generated.schema.json): JSON Draft-07 schema for `res/words_generated.json` and `res/cache_words_gen.json`.
    - [`llm_concept_response.schema.json`](schemas/llm_concept_response.schema.json): JSON Draft-07 schema for DeepSeek payload output (`ConceptResponse`).
 
-7. [**External Game References**](links.md)
+8. [**External Game References**](links.md)
    - Links to official rules, game reviews, and online references for *Concept*.
 
 ---

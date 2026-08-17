@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Concept Cards</string>
+    <string name="title_activity_main">Concept Cards</string>
+    <string name="package_name">com.maxisoft.concept</string>
+    <string name="custom_url_scheme">com.maxisoft.concept</string>
+</resources>
