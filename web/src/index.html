@@ -19,6 +19,35 @@
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
   <link rel="manifest" href="manifest.webmanifest">
+  <script>
+    // Polyfills for Android System WebView < 93 (e.g. Chrome 87 / Android 7-11)
+    if (typeof Object.hasOwn === 'undefined') {
+      Object.hasOwn = function(obj, prop) {
+        return Object.prototype.hasOwnProperty.call(obj, prop);
+      };
+    }
+    if (!Array.prototype.at) {
+      Array.prototype.at = function(n) {
+        n = Math.trunc(n) || 0;
+        if (n < 0) n += this.length;
+        if (n < 0 || n >= this.length) return undefined;
+        return this[n];
+      };
+    }
+    if (!String.prototype.replaceAll) {
+      String.prototype.replaceAll = function(str, newStr) {
+        if (Object.prototype.toString.call(str).toLowerCase() === '[object regexp]') {
+          return this.replace(str, newStr);
+        }
+        return this.replace(new RegExp(str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), newStr);
+      };
+    }
+
+    window.onerror = function(msg, url, line, col, error) {
+      console.error('[UNCAUGHT ERROR]', msg, 'at', url, line + ':' + col, error);
+    };
+    console.log('[Concept] HTML Head & Polyfills loaded.');
+  </script>
 </head>
 <body>
   <app-root></app-root>
