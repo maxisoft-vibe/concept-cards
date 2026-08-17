@@ -4,6 +4,8 @@
   "type": "module",
   "scripts": {
     "ng": "ng",
+    "prebuild": "node generate-version.js",
+    "prebuild:gh-pages": "node generate-version.js",
     "start": "ng serve",
     "build": "ng build",
     "build:gh-pages": "ng build --base-href ./",

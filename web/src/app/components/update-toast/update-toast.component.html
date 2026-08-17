@@ -1,0 +1,43 @@
+@if (isVisible()) {
+  <aside 
+    class="update-toast-banner" 
+    role="status" 
+    aria-live="polite"
+    aria-label="Notification de mise à jour"
+  >
+    <div class="toast-content">
+      <span class="sparkle-icon" aria-hidden="true">✨</span>
+      <div class="toast-text">
+        <strong class="toast-title">Mise à jour prête</strong>
+        <p class="toast-desc">{{ message() }}</p>
+      </div>
+    </div>
+
+    <div class="toast-actions">
+      <button 
+        type="button" 
+        class="refresh-btn" 
+        (click)="onRefresh()"
+        title="Recharger pour appliquer la mise à jour"
+      >
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+        </svg>
+        <span>Actualiser</span>
+      </button>
+
+      <button 
+        type="button" 
+        class="dismiss-btn" 
+        (click)="onDismiss()"
+        aria-label="Fermer la notification"
+        title="Fermer"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+  </aside>
+}

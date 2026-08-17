@@ -1,4 +1,4 @@
-const CACHE_NAME = 'concept-pwa-v4';
+const CACHE_NAME = 'concept-pwa-v5';
 
 // Essential assets to cache on install
 const CORE_ASSETS = [
@@ -10,6 +10,12 @@ const CORE_ASSETS = [
   './apple-touch-icon.png',
   './data/words.json'
 ];
+
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
@@ -24,8 +30,20 @@ self.addEventListener('install', (event) => {
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((keys) => {
-      return Promise.all(
+    (async () => {
+      // Enable Navigation Preload if supported
+      if (self.registration.navigationPreload) {
+        try {
+          await self.registration.navigationPreload.enable();
+          console.log('[SW] Navigation Preload enabled.');
+        } catch (err) {
+          console.warn('[SW] Navigation Preload notice:', err);
+        }
+      }
+
+      // Purge outdated caches
+      const keys = await caches.keys();
+      await Promise.all(
         keys.map((key) => {
           if (key !== CACHE_NAME) {
             console.log('[SW] Purging outdated cache:', key);
@@ -33,49 +51,71 @@ self.addEventListener('activate', (event) => {
           }
         })
       );
-    }).then(() => self.clients.claim())
+      await self.clients.claim();
+    })()
   );
 });
 
+// Helper for timeout race
+function timeout(ms) {
+  return new Promise((_, reject) => setTimeout(() => reject(new Error('Network timeout')), ms));
+}
+
 self.addEventListener('fetch', (event) => {
   const req = event.request;
+  const url = req.url;
 
   // Only handle GET requests for http/https
-  if (req.method !== 'GET' || !req.url.startsWith('http')) {
+  if (req.method !== 'GET' || !url.startsWith('http')) {
     return;
   }
 
-  // Navigation requests (HTML page): INSTANT OFFLINE-FIRST (0 ms startup)
+  // Never cache app-version.json (always direct network for instant update detection)
+  if (url.includes('app-version.json')) {
+    event.respondWith(
+      fetch(req).catch(() => new Response(JSON.stringify({ offline: true }), {
+        headers: { 'Content-Type': 'application/json' }
+      }))
+    );
+    return;
+  }
+
+  // Navigation requests: Navigation Preload with 400ms timeout race & 0ms instant cache fallback
   if (req.mode === 'navigate') {
     event.respondWith(
-      caches.open(CACHE_NAME).then(async (cache) => {
-        const cached = (await cache.match('./index.html')) || 
-                       (await cache.match('index.html')) || 
-                       (await cache.match('./')) || 
-                       (await cache.match(req));
+      (async () => {
+        const cache = await caches.open(CACHE_NAME);
 
-        if (cached) {
-          // If online in the background, fetch fresh copy without blocking the page
-          fetch(req).then((networkResponse) => {
-            if (networkResponse && networkResponse.status === 200) {
-              cache.put('./index.html', networkResponse.clone());
+        // Fast network attempt (via navigationPreload or fast fetch, timeout at 400ms)
+        try {
+          const networkPromise = (async () => {
+            const preload = await event.preloadResponse;
+            if (preload && preload.status === 200) {
+              cache.put('./index.html', preload.clone());
+              return preload;
             }
-          }).catch(() => {
-            // Offline: silently ignore background update error
-          });
-          return cached;
-        }
+            const res = await fetch(req);
+            if (res && res.status === 200) {
+              cache.put('./index.html', res.clone());
+            }
+            return res;
+          })();
 
-        // First install / not in cache yet: fetch from network
-        return fetch(req).then((networkResponse) => {
-          if (networkResponse && networkResponse.status === 200) {
-            cache.put('./index.html', networkResponse.clone());
+          // Race network against 400ms timeout
+          return await Promise.race([networkPromise, timeout(400)]);
+        } catch {
+          // Timeout reached or Offline: serve instantly from cache (0 ms)
+          const cached = (await cache.match('./index.html')) || 
+                         (await cache.match('index.html')) || 
+                         (await cache.match('./')) || 
+                         (await cache.match(req));
+          if (cached) {
+            return cached;
           }
-          return networkResponse;
-        }).catch(async () => {
-          return (await cache.match('./index.html')) || (await cache.match('index.html')) || Response.error();
-        });
-      })
+          // Fallback if not cached yet
+          return (await fetch(req)).catch(() => Response.error());
+        }
+      })()
     );
     return;
   }
