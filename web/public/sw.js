@@ -1,4 +1,4 @@
-const CACHE_NAME = 'concept-pwa-v3';
+const CACHE_NAME = 'concept-pwa-v4';
 
 // Essential assets to cache on install
 const CORE_ASSETS = [
@@ -6,6 +6,8 @@ const CORE_ASSETS = [
   './index.html',
   './manifest.webmanifest',
   './favicon.ico',
+  './favicon.svg',
+  './apple-touch-icon.png',
   './data/words.json'
 ];
 
@@ -43,20 +45,44 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Navigation requests (HTML pages)
+  // Navigation requests (HTML page): INSTANT OFFLINE-FIRST (0 ms startup)
   if (req.mode === 'navigate') {
     event.respondWith(
-      fetch(req).catch(async () => {
-        const cache = await caches.open(CACHE_NAME);
-        return (await cache.match('./index.html')) || (await cache.match('index.html')) || Response.error();
+      caches.open(CACHE_NAME).then(async (cache) => {
+        const cached = (await cache.match('./index.html')) || 
+                       (await cache.match('index.html')) || 
+                       (await cache.match('./')) || 
+                       (await cache.match(req));
+
+        if (cached) {
+          // If online in the background, fetch fresh copy without blocking the page
+          fetch(req).then((networkResponse) => {
+            if (networkResponse && networkResponse.status === 200) {
+              cache.put('./index.html', networkResponse.clone());
+            }
+          }).catch(() => {
+            // Offline: silently ignore background update error
+          });
+          return cached;
+        }
+
+        // First install / not in cache yet: fetch from network
+        return fetch(req).then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            cache.put('./index.html', networkResponse.clone());
+          }
+          return networkResponse;
+        }).catch(async () => {
+          return (await cache.match('./index.html')) || (await cache.match('index.html')) || Response.error();
+        });
       })
     );
     return;
   }
 
-  // Precached assets (JS, CSS, JSON, Images)
+  // All other assets (JS, CSS, JSON, Images, Fonts): Cache-first with network fallback & cache populate
   event.respondWith(
-    caches.match(req).then((cachedResponse) => {
+    caches.match(req, { ignoreSearch: true }).then((cachedResponse) => {
       if (cachedResponse) {
         return cachedResponse;
       }
@@ -69,9 +95,9 @@ self.addEventListener('fetch', (event) => {
         }
         return networkResponse;
       }).catch(async (err) => {
-        // Fallback for offline if not already cached
+        // Fallback for offline if not already matched
         const cache = await caches.open(CACHE_NAME);
-        const match = await cache.match(req);
+        const match = await cache.match(req, { ignoreSearch: true });
         if (match) return match;
         throw err;
       });
