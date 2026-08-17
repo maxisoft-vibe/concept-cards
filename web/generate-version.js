@@ -36,17 +36,35 @@ function getDatasetInfo() {
 function main() {
   const gitHash = getGitHash();
   const { datasetVersion, wordsCount } = getDatasetInfo();
+  const builtAt = Date.now();
   const payload = {
     appVersion: "1.2.0",
     buildHash: gitHash,
-    builtAt: Date.now(),
+    builtAt,
     datasetVersion,
     wordsCount
   };
 
-  const outputPath = resolve(__dirname, 'public/app-version.json');
-  writeFileSync(outputPath, JSON.stringify(payload, null, 2), 'utf-8');
-  console.log(`[Version] Generated app-version.json (buildHash: ${gitHash}, datasetVersion: ${datasetVersion}, words: ${wordsCount})`);
+  // 1. Write public/app-version.json (for remote update polling)
+  const jsonOutputPath = resolve(__dirname, 'public/app-version.json');
+  writeFileSync(jsonOutputPath, JSON.stringify(payload, null, 2), 'utf-8');
+
+  // 2. Write src/app/version.ts (baked into the compiled bundle)
+  const tsContent = `// Auto-generated file by generate-version.js. Do not edit manually.
+export interface AppVersionInfo {
+  appVersion: string;
+  buildHash: string;
+  builtAt: number;
+  datasetVersion: number;
+  wordsCount: number;
+}
+
+export const CURRENT_BUILD_INFO: AppVersionInfo = ${JSON.stringify(payload, null, 2)};
+`;
+  const tsOutputPath = resolve(__dirname, 'src/app/version.ts');
+  writeFileSync(tsOutputPath, tsContent, 'utf-8');
+
+  console.log(`[Version] Generated app-version.json & src/app/version.ts (buildHash: ${gitHash}, datasetVersion: ${datasetVersion}, words: ${wordsCount})`);
 }
 
 main();

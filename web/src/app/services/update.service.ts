@@ -1,22 +1,9 @@
 import { Injectable, signal, inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
+import { CURRENT_BUILD_INFO, type AppVersionInfo } from '../version';
 
-export interface AppVersionInfo {
-  appVersion: string;
-  buildHash: string;
-  builtAt: number;
-  datasetVersion: number;
-  wordsCount: number;
-}
-
-// Fallback build metadata baked into the app
-export const CURRENT_BUILD_INFO: AppVersionInfo = {
-  appVersion: '1.2.0',
-  buildHash: '13fb43c',
-  builtAt: 1786836000000,
-  datasetVersion: 2,
-  wordsCount: 6175
-};
+export { CURRENT_BUILD_INFO };
+export type { AppVersionInfo };
 
 @Injectable({
   providedIn: 'root'
@@ -144,12 +131,19 @@ export class UpdateService {
   applyUpdate(): void {
     if (!this.isBrowser) return;
 
-    // Send skip waiting message to waiting worker if present
     if (this.waitingWorker) {
       this.waitingWorker.postMessage({ type: 'SKIP_WAITING' });
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          window.location.reload();
+        }, { once: true });
+      }
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
+      return;
     }
 
-    // Reload page to run latest code / dataset
     window.location.reload();
   }
 
