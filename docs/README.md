@@ -17,15 +17,28 @@ Welcome to the documentation for the **Concept Card Extender** project.
 3. [**03. Angular 22, Zoneless, Vitest & CI/CD Modernization**](journey/03_ANGULAR22_ZONELESS_CI_AND_TESTING_JOURNEY.md)
    - Full migration to Angular 22.1.2, TypeScript 6.0.3, and Node.js 24 LTS (Krypton).
    - Pure Zoneless change detection (`provideZonelessChangeDetection`), Signal Inputs/Outputs/Queries, and `@let`.
-   - Comprehensive Vitest 4 unit test harness (28 tests passing in ~3s).
+   - Comprehensive Vitest 4 unit test harness.
    - Git history sanitization with BFG Repo-Cleaner and GitHub Release dataset distribution.
    - CI/CD quality gates with ESLint flat config, strict type checks, PR validation, and Dependabot.
 
-4. [**JSON Schemas**](schemas/)
+4. [**04. Dataset Curation, Chunking & Merging Journey**](journey/04_DATASET_CURATION_AND_MERGE_JOURNEY.md)
+   - Granular chunk manager (`split_and_manage_words.py`) across 41 chunks.
+   - Pruning criteria, uniconable jargon removal, and `deleted_words.txt` ledger.
+   - Systematic rehabilitation of 160 board-tested concepts (*Sanglier, Narval, Phénix, Tour Eiffel*).
+   - Strict 4-level semantic hierarchy preservation (Levels 0–3) and final 6,175-concept consolidation.
+
+5. [**05. PWA Offline Performance & Update System Journey**](journey/05_PWA_OFFLINE_PERF_AND_UPDATE_SYSTEM_JOURNEY.md)
+   - 0 ms instant offline startup via Navigation Preload and 400 ms timeout race.
+   - Deterministic build metadata synchronization (`app-version.json` & `src/app/version.ts`).
+   - Reactive [`UpdateService`](../web/src/app/services/update.service.ts) detecting code (`buildHash`) and dataset changes (`datasetVersion`).
+   - Global 1-minute rate limiting (cooldown / debounce) protecting mobile data.
+   - Non-intrusive floating [`UpdateToastComponent`](../web/src/app/components/update-toast/) with smooth controller change activation.
+
+6. [**JSON Schemas**](schemas/)
    - [`words_generated.schema.json`](schemas/words_generated.schema.json): JSON Draft-07 schema for `res/words_generated.json` and `res/cache_words_gen.json`.
    - [`llm_concept_response.schema.json`](schemas/llm_concept_response.schema.json): JSON Draft-07 schema for DeepSeek payload output (`ConceptResponse`).
 
-4. [**External Game References**](links.md)
+7. [**External Game References**](links.md)
    - Links to official rules, game reviews, and online references for *Concept*.
 
 ---

@@ -48,6 +48,8 @@ Consultez les guides techniques détaillés dans le dossier [`docs/`](docs/) :
 - [**01. Word Generator Journey**](docs/journey/01_WORD_GENERATOR_JOURNEY.md) : Génération du dataset de 8 695 mots avec DeepSeek & LiteLLM.
 - [**02. Web App & PWA Journey**](docs/journey/02_WEB_APP_AND_PWA_JOURNEY.md) : Architecture de l'application web, PWA et design responsive.
 - [**03. Angular 22 & Modernization Journey**](docs/journey/03_ANGULAR22_ZONELESS_CI_AND_TESTING_JOURNEY.md) : Migration Angular 22, Zoneless, Vitest 4, BFG et CI/CD.
+- [**04. Dataset Curation & Merge Journey**](docs/journey/04_DATASET_CURATION_AND_MERGE_JOURNEY.md) : Nettoyage, découpage en 41 chunks, réhabilitation de 160 concepts et consolidation à 6 175 mots.
+- [**05. PWA Offline & Update System Journey**](docs/journey/05_PWA_OFFLINE_PERF_AND_UPDATE_SYSTEM_JOURNEY.md) : Démarrage 0 ms hors-ligne, Navigation Preload, rate limiting et détection d'update.
 
 ---
 
