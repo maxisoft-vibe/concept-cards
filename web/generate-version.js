@@ -7,6 +7,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 function getGitHash() {
+  if (process.env.GITHUB_SHA) {
+    return process.env.GITHUB_SHA.slice(0, 7);
+  }
   try {
     return execSync('git rev-parse --short HEAD', { encoding: 'utf-8' }).trim();
   } catch {
