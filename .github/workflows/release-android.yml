@@ -107,7 +107,7 @@ jobs:
             ${{ steps.prepare_asset.outputs.sha_path }}
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ steps.prepare_asset.outputs.tag }}
           name: "Concept Cards ${{ steps.prepare_asset.outputs.tag }}"
