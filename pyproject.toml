@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Add your description here"
 requires-python = ">=3.13"
 dependencies = [
-    "ddgs>=9.14.4",
+    "ddgs>=9.15.0",
     "instructor[litellm]>=1.15.4",
     "litellm>=1.96.2",
 ]
