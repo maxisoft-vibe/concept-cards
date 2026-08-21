@@ -100,7 +100,7 @@ jobs:
 
       - name: Attest APK Build Provenance (SLSA)
         continue-on-error: true
-        uses: actions/attest-build-provenance@v2
+        uses: actions/attest-build-provenance@v4
         with:
           subject-path: |
             ${{ steps.prepare_asset.outputs.apk_path }}
